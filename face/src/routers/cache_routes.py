@@ -20,4 +20,4 @@ def find_face_by_url(url: str):
   result = identify_face_with_vector_search(url)
   if result:
     return {"message": f"Wajah terdeteksi! Mungkin adalah: {result}",
-            "nameId": result}
+            "data": result}

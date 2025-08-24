@@ -154,7 +154,13 @@ def identify_face_with_vector_search(url):
     
     if similarity_score > 0.8:
         print(f"Wajah terdeteksi! Mungkin adalah: {name} (Skor Kesamaan: {similarity_score:.2f})")
-        return name
+        results = {
+            "nameId": name,
+            "similarity_score": similarity_score,
+            "url": data[b"url"].decode("utf-8"),
+            "imgID": data[b"imgID"].decode("utf-8")
+        }
+        return results
     else:
         print(f"Wajah terdeteksi, tetapi tidak cocok dengan siapa pun di database. Skor terbaik: {similarity_score:.2f}")
         return None
