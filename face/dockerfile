@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
         face_recognition
 # RUN /bin/sh -c pip install dlib
 # RUN /bin/sh -c pip install --no-cache-dir face_recognition
-RUN /bin/sh -c pip install redis
+RUN pip install redis
+RUN pip install requests
 RUN pip install "fastapi[standard]"
 # RUN pip install --no-cache-dir -r requirements.txt
 
@@ -27,4 +28,4 @@ RUN pip install "fastapi[standard]"
 
 EXPOSE 8000
 
-CMD ["fastapi", "dev","main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run","main.py", "--host", "0.0.0.0", "--port", "8000"]
