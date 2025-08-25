@@ -1,0 +1,45 @@
+# version: '3.8'
+
+# services:
+#   face_recognition:
+#     build: ./face
+#     container_name: faceindex
+#     ports:
+#       - "3200:8000"  
+#     environment:
+#       - REDIS_HOST=172.17.0.1
+#       - REDIS_PORT=6379
+#       - REDIS_PASSWORD=RSU_StrongPassword
+#     depends_on:
+#       - redis
+
+#   redis:
+#     image: redis:latest
+#     container_name: redis_container
+#     ports:
+#       - "6379:6379"
+#     environment:
+#       - REDIS_PASSWORD=RSU_StrongPassword
+#     volumes:
+#       - redis_data:/data
+
+# volumes:
+#   redis_data:
+
+
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:

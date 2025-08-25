@@ -1,5 +1,7 @@
 !/src/connection/cache/.gitkeep
 /src/connection/cache/*
-/src/
+faceApi/node_modules
+faceApi/package-lock.json
+/node
 .DS_Store
 .env
