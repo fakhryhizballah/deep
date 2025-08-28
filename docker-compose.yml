@@ -1,30 +1,44 @@
 # version: '3.8'
 
-# services:
-#   face_recognition:
-#     build: ./face
-#     container_name: faceindex
-#     ports:
-#       - "3200:8000"  
-#     environment:
-#       - REDIS_HOST=172.17.0.1
-#       - REDIS_PORT=6379
-#       - REDIS_PASSWORD=RSU_StrongPassword
-#     depends_on:
-#       - redis
+services:
+  face_recognition:
+    build: ./face
+    container_name: faceindex
+    ports:
+      - "3200:8000"  
+    environment:
+      - REDIS_HOST=172.17.0.1
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=RSU_StrongPassword
+    # depends_on:
+    #   - redis
 
-#   redis:
-#     image: redis:latest
-#     container_name: redis_container
-#     ports:
-#       - "6379:6379"
-#     environment:
-#       - REDIS_PASSWORD=RSU_StrongPassword
-#     volumes:
-#       - redis_data:/data
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis_container
+  #   # ports:
+  #   #   - "6379:6379"
+  #   environment:
+  #     - REDIS_PASSWORD=RSU_StrongPassword
+  #   volumes:
+  #     - redis_data:/data
 
-# volumes:
-#   redis_data:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_data:/data/configdb
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+volumes:
+  mongodb_data: 
+  # redis_data:
 
 
 # version: '3.8'
@@ -45,19 +59,25 @@
 # volumes:
 #   mongodb_data: 
 
-version: '3.8'
+# version: '3.8'
 
-services:
-  # The primary MongoDB service
-  mongo:
-    image: mongo:latest
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    command: ["--replSet", "rs0", "--bind_ip_all"]
+# services:
+#   # The primary MongoDB service
+#   mongo:
+#     image: mongo:latest
+#     container_name: mongo
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
+#       - mongo-data:/data/configdb
+#     command: ["--replSet", "rs0", "--bind_ip_all"]
+#     # command: ["mongosh", "--eval", "rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo:27017' }] })"]
+#      # Layanan terpisah untuk inisialisasi replica set
 
-# A volume to persist the MongoDB data
-volumes:
-  mongo-data: {}
+# # A volume to persist the MongoDB data
+# volumes:
+#   mongo-data: {}
+
+  # mongosh --port 27017
+  # rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] })

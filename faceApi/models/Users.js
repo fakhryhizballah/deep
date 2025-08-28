@@ -4,12 +4,13 @@ const preferencesSchema = new mongoose.Schema({
     nik: String,
     nohp:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'NoHp',
+        ref: 'Nohp',
         required: false,
     }],
     bio: {
-        type: Object,
-        default: {}
+        type: Array,
+        required: false,
+        default: []
     }
 
 });

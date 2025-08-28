@@ -9,22 +9,26 @@ module.exports = {
                 let body = req.body
                 let addUser = new User({
                     username: body.username,
-                    UrlImage: body.UrlImage
+                    UrlImage: body.UrlImage,
                 })
                 let addPreferences = new Preferences({
                     name: body.preferences.name,
                     nik: body.preferences.nik,
                     nohp: [],
+                    bio: body.preferences.bio || []
                 })
                 // console.log(body.preferences.nohp)
-                for(let x of body.preferences.nohp){
-                    let addNohp = new Nohp({
-                        nohp: x
-                    })
-                    console.log(addNohp)
-                    await addNohp.save({ session })
-                    addPreferences.nohp.push(addNohp._id)
+                if (body.preferences.nohp) {
+                    for (let x of body.preferences.nohp) {
+                        let addNohp = new Nohp({
+                            nohp: x
+                        })
+                        console.log(addNohp)
+                        await addNohp.save({ session })
+                        addPreferences.nohp.push(addNohp._id)
+                    }
                 }
+
                 await addPreferences.save({ session })
 
                 addUser.preferences = addPreferences._id
@@ -83,8 +87,35 @@ module.exports = {
             })
         }
     },
+    addBiodata: async (req, res) => {
+        try {
+            let body = req.body
+            let findUser = await User.findOne({ username: body.username })
+            if (!findUser) {
+                return res.status(404).json({
+                    message: "username not found",
+                    data: null
+                })
+            }
+            let updatePreferences = await Preferences.findByIdAndUpdate(
+                findUser.preferences._id,
+                { $push: { "bio": body.biodata } },
+                { new: true, runValidators: true })
+            return res.status(200).json({
+                message: "success",
+                data: updatePreferences
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+    },
     addNohp: async (req, res)=>{
+        const session = await mongoose.startSession();
         try{
+            session.startTransaction();
             let body = req.body
             let findUser = await User.findOne({username: body.username}).populate('preferences')
             if(!findUser){
@@ -95,15 +126,26 @@ module.exports = {
            }
         //    console.log(findUser)
             console.log(findUser.preferences._id)
-            let updatePreferences = await Preferences.findByIdAndUpdate(
+            let addNohp = new Nohp({
+                nohp: body.nohp
+            })
+            await addNohp.save({ session })
+            await Preferences.findByIdAndUpdate(
                 findUser.preferences._id,
-                 {$push: {nohp: body.nohp}},
-                { new: true, runValidators: true })
+                { $push: { nohp: addNohp._id } },
+                { new: true, runValidators: true },
+                { session }
+            )
+            await findUser.save({ session })
+            await session.commitTransaction();
+            await session.endSession();
             return res.status(200).json({
                 message: "success",
                 data: findUser
             })
         }catch(error){
+            await session.abortTransaction();
+            await session.endSession();
             return res.status(500).json({
                 message: "error",
                 data: error
@@ -117,7 +159,9 @@ module.exports = {
             let limit = req.body ? req.body.limit : 10;
             limit || (limit = 10);
             // console.log(limit)
-            let users = await User.find().populate('preferences').limit(limit)
+            let users = await User.find().populate({
+                path: 'preferences', populate: { path: 'nohp' }
+            }).limit(limit)
             return res.status(200).json({
                 message: "success",
                 record: users.length,
