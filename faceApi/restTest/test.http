@@ -1,0 +1,45 @@
+
+POST  http://localhost:3000/api/user HTTP/1.1
+content-type: application/json
+
+{
+ "username":"fakhry1",
+ "UrlImage":"https://api.spairum.my.id/api/cdn/image/1755881802754-514-1668593873958-fakhry.webp?w=500&h=500",
+ "preferences":{
+    "name":"fakhry Hizballah1",
+    "nik":"098213",
+    "nohp":[
+         "0986223"
+    ]
+ }
+}
+###
+### edit refresn nik and name
+PUT  http://localhost:3000/api/user HTTP/1.1
+content-type: application/json
+
+{
+ "username":"fakhry1",
+ "preferences":{
+     "nik":"123"
+   
+ }
+}
+###
+
+### add nohp
+POST http://localhost:3000/api/user/nohp HTTP/1.1
+content-type: application/json
+
+{
+    "username":"fakhry1",
+    "nohp":"09871123"
+}
+###
+
+GET  http://localhost:3000/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "limit":5
+}

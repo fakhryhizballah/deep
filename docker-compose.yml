@@ -27,19 +27,37 @@
 #   redis_data:
 
 
+# version: '3.8'
+
+# services:
+#   mongodb:
+#     image: mongo:latest
+#     container_name: mongodb_container
+#     ports:
+#       - "27017:27017"
+#     environment:
+#       - MONGO_INITDB_ROOT_USERNAME=root
+#       - MONGO_INITDB_ROOT_PASSWORD=root
+#     volumes:
+#       - mongodb_data:/data/db
+#       - mongodb_data:/data/configdb
+
+# volumes:
+#   mongodb_data: 
+
 version: '3.8'
 
 services:
-  mongodb:
+  # The primary MongoDB service
+  mongo:
     image: mongo:latest
-    container_name: mongodb_container
+    container_name: mongo
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
     volumes:
-      - mongodb_data:/data/db
+      - mongo-data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
 
+# A volume to persist the MongoDB data
 volumes:
-  mongodb_data:
+  mongo-data: {}
