@@ -13,10 +13,14 @@ RUN apt-get update && apt-get install -y \
         g++ \
         git \
         && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir \
-        dlib \
-        opencv-python \
-        face_recognition
+# RUN pip install \
+#         # --no-cache-dir \
+#         # dlib \
+#         # opencv-python \
+#         face_recognition
+# RUN pip install torch torchvision insightface
+RUN pip install opencv-python insightface scikit-learn numpy
+RUN pip install onnxruntime
 RUN pip install redis
 RUN pip install requests
 RUN pip install "fastapi[standard]"

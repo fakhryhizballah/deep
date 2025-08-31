@@ -1,8 +1,19 @@
 const { User, Preferences, Nohp } = require('../models/Users');
 const mongoose = require('mongoose');
-
+const axios = require('axios');
+const HostApi = process.env.HOST_API || 'http://localhost:8000'
 module.exports = {
     indexUsers: async(req, res) => {
+        // const result = await axios.post(HostApi + '/api/face/index/url?UrlImage=' + req.body.UrlImage + '&nameId=' + req.body.username)
+        const result = await axios.post(`http://localhost:8000/api/face/index/url?nameId=${req.body.username}&url=${req.body.UrlImage}`)
+        console.log(result.data)
+        if (!result.data.status) {
+            return res.status(201).json({
+                status: false,
+                message: 'gagal',
+                data: result.data.message
+            });
+        }
         const session = await mongoose.startSession();
             try {
                 session.startTransaction();
@@ -37,7 +48,7 @@ module.exports = {
                 await session.endSession();
                 return res.status(201).json({
                     message: 'Pengguna berhasil dibuat',
-                    data: newUser
+                    // data: newUser
                     });
             } catch (error) {
                 await session.abortTransaction();
@@ -156,7 +167,8 @@ module.exports = {
     allUsers: async (req, res) => {
         try {
             
-            let limit = req.body ? req.body.limit : 10;
+            let limit = req.query.limit || 10;
+            console.log(limit)
             limit || (limit = 10);
             // console.log(limit)
             let users = await User.find().populate({
@@ -168,12 +180,27 @@ module.exports = {
                 data: users
             })
         } catch (error) {
-            console.log(req.body.limit)
             return res.status(500).json({
                 message: "error",
                 data: error
             })
         }
        
+    },
+    facebyUrl: async (req, res) => {
+        try {
+            console.log(req.query.url)
+            const result = await axios.post(`http://localhost:8000/api/face/index/url?url=${req.query.url}`)
+            console.log(result)
+            return res.status(200).json({
+                message: "success",
+                data: result
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
     }
 }

@@ -9,4 +9,19 @@ services:
     environment:
       - REDIS_HOST=172.17.0.1
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=RSU_StrongPassword
+      - REDIS_PASSWORD=""
+    volumes:
+      - ./faceApi/data:/app/connection/data
+  face_api:
+    build: ./faceApi/
+    container_name: faceapi
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://127.0.0.1:27017/faceapi?replicaSet=rs0
+      - HOST_API=http://faceindex:8000
+      - REDIS_HOST=172.17.0.1
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=""
+    volumes:
+      - ./faceApi/data:/app/data

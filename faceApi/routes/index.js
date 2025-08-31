@@ -8,7 +8,8 @@ routes.post("/user", base.indexUsers);
 routes.put("/user", base.updateUser);
 routes.post("/user/nohp", base.addNohp);
 routes.post("/user/biodata", base.addBiodata);
-
 routes.get("/users", base.allUsers);
+
+routes.get("/finder/byurl", base.facebyUrl);
 
 module.exports = routes;
