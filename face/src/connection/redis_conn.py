@@ -22,7 +22,7 @@ app.prepare(ctx_id=0, det_size=(640, 640))
 # --- 1. Hubungkan ke Redis Stack ---
 # Pastikan Redis Stack Anda berjalan di port 6379
 try:
-    r = redis.Redis(host=os.environ.get('REDIS_HOST'), port=6379, db=0, password=os.environ.get('REDIS_PASSWORD'))
+    r = redis.Redis(host=os.environ.get('REDIS_HOST'), port=6379, db=0,username=os.environ.get('REDIS_USERNAME', 'default'), password=os.environ.get('REDIS_PASSWORD'))
     r.ping()
     print("Berhasil terhubung ke Redis Stack!")
 except redis.exceptions.ConnectionError as e:
