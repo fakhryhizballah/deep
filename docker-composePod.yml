@@ -5,8 +5,8 @@ services:
     image: fakhryhiz/faceindex:latest
     container_name: faceindex
     ports:
-      - "3200:8000"  
+      - "8000:8000"  
     environment:
-      - REDIS_HOST=172.17.0.1
+      - REDIS_HOST=10.20.0.227
       - REDIS_PORT=6379
       - REDIS_PASSWORD=RSU_StrongPassword

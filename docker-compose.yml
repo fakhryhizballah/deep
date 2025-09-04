@@ -7,21 +7,44 @@ services:
     ports:
       - "8000:8000"  
     environment:
-      - REDIS_HOST=172.17.0.1
+      - REDIS_HOST=10.20.0.227
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=""
+      - REDIS_USERNAME=default
+      - REDIS_PASSWORD=RSUD_StrongPassword
     volumes:
       - ./faceApi/data:/app/connection/data
-  face_api:
-    build: ./faceApi/
-    container_name: faceapi
-    ports:
-      - "3000:3000"
-    environment:
-      - MONGO_URI=mongodb://127.0.0.1:27017/faceapi?replicaSet=rs0
-      - HOST_API=http://faceindex:8000
-      - REDIS_HOST=172.17.0.1
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=""
-    volumes:
-      - ./faceApi/data:/app/data
+  # face_api:
+  #   build: ./faceApi/
+  #   container_name: faceapi
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - MONGO_URI=mongodb://admin:strongpassword123@mongo:27017/?authSource=admin&replicaSet=rs0
+  #   volumes:
+  #     - ./faceApi/data:/app/data
+  #   networks:
+  #     - mongo-cluster
+#   mongo:
+#     image: mongo:latest
+#     container_name: mongo
+#     restart: unless-stopped
+#     ports:
+#       - "27017:27017"   # Expose ke host
+#     networks:
+#       - mongo-cluster
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: admin
+#       MONGO_INITDB_ROOT_PASSWORD: strongpassword123
+#     volumes:
+#       - mongo-data:/data/db0
+#       - ./mongo-keyfile:/etc/mongo-keyfile:ro
+#     command: >
+#       mongod --replSet rs0 --bind_ip_all --port 27017 --keyFile /etc/mongo-keyfile
+
+# volumes:
+#   mongo-data:
+
+networks:
+  mongo-cluster:
+    driver: bridge
+    external: true

@@ -1,48 +1,13 @@
 const mongoose = require('mongoose');
-const preferencesSchema = new mongoose.Schema({
-    name: String,
-    nik: String,
-    nohp:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Nohp',
-        required: false,
-    }],
-    bio: {
-        type: Array,
-        required: false,
-        default: []
-    }
-
-});
-const nohpSchema = new mongoose.Schema({
-    nohp: {
-        type: String,
-        unique: true
-    },
-});
-
-
-
-
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
         unique: true
     },
-    UrlImage: String,
-    preferences: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Preferences',
-        required: true
+    nik: {
+        type: String,
+        unique: true,
+        sparse: true
     }
 });
-const User = mongoose.model('User', userSchema);
-const Preferences = mongoose.model('Preferences', preferencesSchema);
-const Nohp = mongoose.model('Nohp', nohpSchema);
-
-module.exports = {
-    User,
-    Preferences,
-    Nohp,
-
-};
+module.exports = mongoose.model('User', userSchema);

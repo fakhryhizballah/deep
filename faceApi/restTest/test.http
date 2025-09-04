@@ -3,18 +3,34 @@ POST  http://localhost:3000/api/user HTTP/1.1
 content-type: application/json
 
 {
- "username":"fakhry1",
+ "username":"fakhry",
  "UrlImage":"https://api.spairum.my.id/api/cdn/image/1755881802754-514-1668593873958-fakhry.webp",
- "preferences":{
-    "name":"fakhry Hizballah1",
-    "nik":"098213",
-        "nohp":[
-         "098622314"
-    ]
-
- }
+ "nik":"025852285"
 }
+
 ###
+POST  http://localhost:3000/api/user HTTP/1.1
+content-type: application/json
+
+{
+ "username":"Aprianti",
+ "UrlImage":"https://lh3.googleusercontent.com/cm/AGPWSu8PkwQxMUC_YGtwUuicHw6R44FiOcktxWpX6rYriWsbyG5L06voAi1zRSKqgccr8na6BA=s100"
+}
+
+###
+
+GET  http://localhost:3000/api/users HTTP/1.1
+
+### 
+### FIND USER BY URL
+
+POST  http://localhost:3000/api/find/users HTTP/1.1
+content-type: application/json
+
+{
+ "UrlImage":"https://api.spairum.my.id/api/cdn/image/1693397469362-image-fototerbaru.jpg.jpg"
+}
+
 ### edit refresn nik and name
 PUT  http://localhost:3000/api/user HTTP/1.1
 content-type: application/json

@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter
 from connection.redis_conn import get_redis_connection,download_image
-from connection import create_vector_index,add_face_to_index,identify_face_with_vector_search,identify_face_imread_with_vector_search,dump_index_face
+from connection import create_vector_index,add_face_to_index,identify_face_imread_with_vector_search,dump_index_face
 
 router = APIRouter(prefix="/api", tags=["api"], responses={404: {"description": "Not found"}})
 r = get_redis_connection()
