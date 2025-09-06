@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    name: String,
     nik: {
         type: String,
         unique: true,
