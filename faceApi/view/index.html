@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Camera Stream</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#1e40af'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Streaming Kamera dengan Socket.IO</h1>
+            <div class="h-1 w-24 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto rounded-full"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Camera Section -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <div class="flex flex-col items-center">
+                    <!-- Video Container -->
+                    <div class="relative mb-6">
+                        <video 
+                            id="cameraVideo" 
+                            autoplay 
+                            muted 
+                            class="w-full max-w-2xl h-auto bg-gray-900 rounded-xl shadow-lg border-4 border-gray-200"
+                            style="aspect-ratio: 4/3;"
+                        ></video>
+                        <div class="absolute top-4 right-4">
+                            <div id="recordingIndicator" class="hidden">
+                                <div class="flex items-center space-x-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                    <span>STREAMING</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="flex flex-wrap gap-4 justify-center mb-6">
+                        <button 
+                            id="startCameraButton"
+                            class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                        >
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            Mulai Kamera
+                        </button>
+
+                        <button 
+                            id="sendStreamButton" 
+                            disabled
+                            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h8m-8 0v2h8V4M5 16h14l-1-4H6l-1 4z"></path>
+                            </svg>
+                            Mulai Kirim Stream
+                        </button>
+                    </div>
+
+                    <!-- Status Display -->
+                    <div class="w-full max-w-2xl">
+                        <div id="status" class="text-center p-3 rounded-lg bg-gray-100 text-gray-700 font-medium mb-4">
+                            Siap untuk memulai
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="result" class="bg-white rounded-2xl shadow-xl p-6 hidden">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Hidden Canvas -->
+        <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const cameraVideo = document.getElementById('cameraVideo');
+        const startCameraButton = document.getElementById('startCameraButton');
+        const sendStreamButton = document.getElementById('sendStreamButton');
+        const statusDiv = document.getElementById('status');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        
+        let socket;
+        let cameraStream;
+        let sendIntervalId;
+
+        const updateStatus = (message, type = 'info') => {
+            statusDiv.textContent = message;
+            statusDiv.className = `text-center p-3 rounded-lg font-medium mb-4 ${
+                type === 'success' ? 'bg-green-100 text-green-700' :
+                type === 'error' ? 'bg-red-100 text-red-700' :
+                type === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-gray-100 text-gray-700'
+            }`;
+        };
+
+        const connectSocketIO = () => {
+            if (socket && socket.connected) {
+                return;
+            }
+            socket = io();
+            socket.on('connect', () => {
+                updateStatus('Koneksi Socket.IO terhubung.', 'success');
+                console.log('Socket.IO connected.');
+            });
+            socket.on('disconnect', () => {
+                updateStatus('Koneksi Socket.IO terputus.', 'error');
+                console.log('Socket.IO disconnected.');
+                stopSendingStream();
+            });
+            socket.on('data_foto', (data) => {
+                console.log(data);
+                displayResults(data);
+            });
+        };
+
+        const displayResults = (data) => {
+            const resultDiv = document.getElementById("result");
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'text-center mb-6';
+            header.innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Hasil Deteksi</h2>
+                <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span class="font-semibold">Jumlah Wajah Terdeteksi: ${data.jumlah_face}</span>
+                </div>
+            `;
+            resultDiv.appendChild(header);
+
+            // Results list
+            if (data.dikenali && data.dikenali.length > 0) {
+                const listContainer = document.createElement('div');
+                listContainer.className = 'space-y-3';
+
+                data.dikenali.forEach((item, index) => {
+                    const accuracy = (item.score * 100).toFixed(1);
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'bg-gray-50 rounded-lg p-4 border-l-4 border-blue-500';
+                    itemDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
+                                    ${index + 1}
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">${item.findUser.user.username}</h3>
+                                    <p class="text-sm text-gray-600">Terdeteksi dengan akurasi tinggi</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-blue-600">${accuracy}%</div>
+                                <div class="text-xs text-gray-500">Akurasi</div>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.appendChild(itemDiv);
+                });
+
+                resultDiv.appendChild(listContainer);
+            } else {
+                const noResults = document.createElement('div');
+                noResults.className = 'text-center text-gray-500 py-8';
+                noResults.innerHTML = `
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p>Tidak ada wajah yang dikenali</p>
+                `;
+                resultDiv.appendChild(noResults);
+            }
+        };
+
+        startCameraButton.addEventListener('click', async () => {
+            if (cameraStream) {
+                stopCamera();
+                startCameraButton.innerHTML = `
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    Mulai Kamera
+                `;
+                sendStreamButton.disabled = true;
+                sendStreamButton.innerHTML = `
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h8m-8 0v2h8V4M5 16h14l-1-4H6l-1 4z"></path>
+                    </svg>
+                    Mulai Kirim Stream
+                `;
+                stopSendingStream();
+            } else {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    cameraVideo.srcObject = cameraStream;
+                    startCameraButton.innerHTML = `
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                        </svg>
+                        Hentikan Kamera
+                    `;
+                    startCameraButton.className = startCameraButton.className.replace('from-green-500 to-green-600 hover:from-green-600 hover:to-green-700', 'from-red-500 to-red-600 hover:from-red-600 hover:to-red-700');
+                    sendStreamButton.disabled = false;
+                    updateStatus('Kamera berhasil dimulai. Siap untuk streaming.', 'success');
+                } catch (error) {
+                    console.error('Error starting camera:', error);
+                    updateStatus('Gagal memulai kamera. Pastikan Anda memberikan izin.', 'error');
+                }
+            }
+        });
+
+        const stopCamera = () => {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+                cameraVideo.srcObject = null;
+                startCameraButton.className = startCameraButton.className.replace('from-red-500 to-red-600 hover:from-red-600 hover:to-red-700', 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700');
+            }
+        };
+
+        const sendCameraFrame = () => {
+            if (socket && socket.connected && cameraVideo.readyState >= 2) {
+                const canvas = document.createElement('canvas');
+                canvas.width = cameraVideo.videoWidth;
+                canvas.height = cameraVideo.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const base64 = dataUrl.split(',')[1];
+                const imageBuffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                
+                socket.emit('camera-frame', imageBuffer);
+            }
+        };
+
+        sendStreamButton.addEventListener('click', () => {
+            if (sendIntervalId) {
+                stopSendingStream();
+                sendStreamButton.innerHTML = `
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h8m-8 0v2h8V4M5 16h14l-1-4H6l-1 4z"></path>
+                    </svg>
+                    Mulai Kirim Stream
+                `;
+                updateStatus('Pengiriman stream dihentikan.', 'warning');
+                recordingIndicator.classList.add('hidden');
+            } else {
+                if (cameraStream) {
+                    connectSocketIO();
+                    sendIntervalId = setInterval(sendCameraFrame, 100);
+                    sendStreamButton.innerHTML = `
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                        </svg>
+                        Hentikan Kirim Stream
+                    `;
+                    updateStatus('Sedang mengirim stream kamera ke server...', 'success');
+                    recordingIndicator.classList.remove('hidden');
+                } else {
+                    updateStatus('Mulai kamera terlebih dahulu.', 'warning');
+                }
+            }
+        });
+
+        const stopSendingStream = () => {
+            if (sendIntervalId) {
+                clearInterval(sendIntervalId);
+                sendIntervalId = null;
+                recordingIndicator.classList.add('hidden');
+            }
+        };
+
+        window.onbeforeunload = () => {
+            stopCamera();
+            stopSendingStream();
+            if (socket && socket.connected) {
+                socket.disconnect();
+            }
+        };
+
+        // Initialize with default status
+        updateStatus('Siap untuk memulai');
+    </script>
+</body>
+</html>

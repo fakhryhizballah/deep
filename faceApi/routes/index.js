@@ -6,6 +6,8 @@ const base = require('../controllers');
 routes.post("/user", base.indexUsers);
 routes.get("/users", base.findAllUser);
 routes.post("/find/users", base.findUserByUrl);
+routes.get("/find/faceid", base.findFace);
+routes.get("/find/face/undefined", base.findFaceUndefined);
 
 // routes.put("/user", base.updateUser);
 // routes.post("/user/nohp", base.addNohp);

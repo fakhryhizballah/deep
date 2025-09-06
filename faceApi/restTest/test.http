@@ -17,7 +17,7 @@ content-type: application/json
  "UrlImage":"https://lh3.googleusercontent.com/cm/AGPWSu8PkwQxMUC_YGtwUuicHw6R44FiOcktxWpX6rYriWsbyG5L06voAi1zRSKqgccr8na6BA=s100"
 }
 
-###
+### FIND ALL USER
 
 GET  http://localhost:3000/api/users HTTP/1.1
 
@@ -31,43 +31,51 @@ content-type: application/json
  "UrlImage":"https://api.spairum.my.id/api/cdn/image/1693397469362-image-fototerbaru.jpg.jpg"
 }
 
-### edit refresn nik and name
-PUT  http://localhost:3000/api/user HTTP/1.1
-content-type: application/json
+### Find Face ID
 
-{
- "username":"fakhry1",
- "preferences":{
-     "name":"AAAA"
+GET http://localhost:3000/api/find/faceid?user=68b8220a3ff7850a16b8a124 HTTP/1.1
+
+
+### Finde Face undefined
+GET http://localhost:3000/api/find/face/undefined
+
+# ### edit refresn nik and name
+# PUT  http://localhost:3000/api/user HTTP/1.1
+# content-type: application/json
+
+# {
+#  "username":"fakhry1",
+#  "preferences":{
+#      "name":"AAAA"
    
- }
-}
-###
+#  }
+# }
+# ###
 
-### add nohp
-POST http://localhost:3000/api/user/nohp HTTP/1.1
-content-type: application/json
+# ### add nohp
+# POST http://localhost:3000/api/user/nohp HTTP/1.1
+# content-type: application/json
 
-{
-    "username":"fakhry1",
-    "nohp":"09871123"
-}
-###
-POST http://localhost:3000/api/user/biodata 
-content-type: application/json
+# {
+#     "username":"fakhry1",
+#     "nohp":"09871123"
+# }
+# ###
+# POST http://localhost:3000/api/user/biodata 
+# content-type: application/json
 
-{
-    "username":"fakhry2",
-    "biodata":{
-         "FB" :"asasa"
-    }
-}
-###
+# {
+#     "username":"fakhry2",
+#     "biodata":{
+#          "FB" :"asasa"
+#     }
+# }
+# ###
 
-GET  http://localhost:3000/api/users?limit=5 HTTP/1.1
+# GET  http://localhost:3000/api/users?limit=5 HTTP/1.1
 
 
-### face by URL
+# ### face by URL
 
-GET http://localhost:3000/api/finder/byurl?url=https://media.licdn.com/dms/image/v2/C4E03AQFB_OhySRLxFw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1644685059261?e=1759363200&v=beta&t=gNaKnoXDUp6IP-sHSPBIJfWCG-CqTrvlOmp-1mdrJT0
+# GET http://localhost:3000/api/finder/byurl?url=https://media.licdn.com/dms/image/v2/C4E03AQFB_OhySRLxFw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1644685059261?e=1759363200&v=beta&t=gNaKnoXDUp6IP-sHSPBIJfWCG-CqTrvlOmp-1mdrJT0
 

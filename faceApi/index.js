@@ -5,6 +5,14 @@ const morgan = require('morgan');
 const redis = require('redis');
 const app = express();
 const path = require('path');
+const fs = require('fs');
+const http = require('http').createServer(app); // Perbaikan: Gunakan http.createServer
+const io = require('socket.io')(http); // Perbaikan: Pasang Socket.IO ke server http
+const PORT = process.env.PORT || 3000;
+
+const { findFace } = require('./controllers/soket')
+
+console.log('Signaling server started on port 3000');
 
 app.use(express.json());
 app.use(morgan('dev'));
@@ -49,6 +57,15 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/view', express.static(path.join(__dirname + '/view'), {
+
+}))
+app.use("/resource/", express.static(path.join(__dirname + '/public'), {
+    setHeaders: (res, path, stat) => {
+        res.set('Cache-Control', 'public, max-age=86400');
+    }
+}));
+
 app.use("/asset/img/", express.static(path.join(__dirname + '/data/'), {
     setHeaders: (res, path, stat) => {
         res.set('Cache-Control', 'public, max-age=86400');
@@ -59,8 +76,39 @@ const routes = require('./routes');
 app.use('/api', routes);
 
 
+const frameDir = path.join(__dirname, 'received_frames');
+if (!fs.existsSync(frameDir)) {
+    fs.mkdirSync(frameDir);
+}
+// Tangani koneksi Socket.IO
+io.on('connection', (socket) => {
+    console.log('Client connected with ID:', socket.id);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log('running on port', PORT);
+    // Tangani event 'camera-frame'
+    socket.on('camera-frame', async (imageBuffer) => {
+        // Data yang diterima dari klien adalah ArrayBuffer, langsung bisa ditulis
+        const fileName = `camera_frame_${Date.now()}.jpg`;
+        fs.writeFileSync(path.join(frameDir, fileName), imageBuffer);
+        socket.emit('frame', imageBuffer);
+        let data = await findFace(fileName)
+        console.log(data)
+        socket.emit('data_foto', data);
+        setTimeout(() => {
+            fs.unlinkSync(path.join(frameDir, fileName));
+        }, 2000);
+
+
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
+
+// app.listen(PORT, () => {
+//     console.log('running on port', PORT);
+// });
+http.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
 });

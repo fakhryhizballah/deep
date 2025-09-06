@@ -278,3 +278,37 @@ def dump_index_face(url):
     if os.path.exists(image_path):
        os.remove(image_path)
     return data
+
+def find_face_internal(path: str):
+    img = cv2.imread(path)
+    faces = app.get(img)
+    if len(faces) == 0:
+        return False
+    
+    dataFace = [];
+    for face in faces :
+        emb_query = face.normed_embedding.astype(np.float32).tobytes()
+        q = Query(f"*=>[KNN {5} @face_imread $vec as vector_score]") \
+            .sort_by("vector_score") \
+            .return_fields("user_id", "vector_score") \
+            .dialect(2)
+
+        results = r.ft(INDEX_NAME).search(q, query_params={"vec": emb_query})
+        # first_result = results.docs[0]
+        # name = first_result.name
+        
+        if results.total == 0:
+            print("Tidak ada hasil yang ditemukan.")
+            continue 
+        dataFace.append(
+            {
+                "id": results.docs[0].id,
+                "vector_score": results.docs[0].vector_score
+            }
+        )
+    
+    return {
+        'total': len(faces),
+        'data' :dataFace
+
+    }

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Screen Share</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-semibold text-gray-900">Screen Share</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="connectionStatus" class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span class="text-sm text-gray-500">Disconnected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Berbagi Layar dengan Socket.IO</h2>
+            <p class="mt-1 text-sm text-gray-600">Bagikan layar Anda dan deteksi wajah secara real-time</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Video Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Live Preview</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <video 
+                                id="screenVideo" 
+                                autoplay 
+                                muted 
+                                class="w-full h-auto bg-gray-900 rounded-lg border border-gray-200"
+                                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'%3E%3Crect width='640' height='360' fill='%23374151'/%3E%3Ctext x='320' y='180' text-anchor='middle' dy='0.35em' fill='%239ca3af' font-family='sans-serif' font-size='18'%3ELayar akan muncul di sini%3C/text%3E%3C/svg%3E"
+                            ></video>
+                            
+                            <!-- Status Indicators -->
+                            <div class="absolute top-3 left-3 flex space-x-2">
+                                <div id="recordingBadge" class="hidden bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+                                    <div class="w-2 h-2 bg-red-500 rounded-full mr-1 animate-pulse"></div>
+                                    Recording
+                                </div>
+                                <div id="streamingBadge" class="hidden bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-1 animate-pulse"></div>
+                                    Streaming
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="mt-6 bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Controls</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button 
+                                id="startCaptureButton" 
+                                class="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                            >
+                                Mulai Tangkap Layar
+                            </button>
+                            
+                            <button 
+                                id="sendStreamButton" 
+                                disabled 
+                                class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                            >
+                                Mulai Kirim Stream
+                            </button>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="mt-4 p-3 bg-gray-50 rounded-md">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div id="statusIndicator" class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                </div>
+                                <div class="ml-3">
+                                    <p id="status" class="text-sm text-gray-600">Siap untuk memulai berbagi layar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Hasil Deteksi</h3>
+                    </div>
+                    <div class="p-6">
+                        <div id="result" class="space-y-4">
+                            <!-- Empty state -->
+                            <div id="emptyState" class="text-center py-8">
+                                <div class="text-gray-400 text-4xl mb-3">👤</div>
+                                <p class="text-sm text-gray-500">Belum ada deteksi wajah</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="mt-6 bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Statistik</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="text-center">
+                                <div id="faceCount" class="text-2xl font-bold text-primary-600">0</div>
+                                <div class="text-sm text-gray-500">Total Wajah</div>
+                            </div>
+                            <div class="text-center">
+                                <div id="recognizedCount" class="text-2xl font-bold text-green-600">0</div>
+                                <div class="text-sm text-gray-500">Dikenali</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        const screenVideo = document.getElementById('screenVideo');
+        const startCaptureButton = document.getElementById('startCaptureButton');
+        const sendStreamButton = document.getElementById('sendStreamButton');
+        const statusDiv = document.getElementById('status');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const recordingBadge = document.getElementById('recordingBadge');
+        const streamingBadge = document.getElementById('streamingBadge');
+        const resultDiv = document.getElementById('result');
+        const emptyState = document.getElementById('emptyState');
+        const faceCountDiv = document.getElementById('faceCount');
+        const recognizedCountDiv = document.getElementById('recognizedCount');
+        
+        let socket;
+        let screenStream;
+        let sendIntervalId;
+
+        const updateStatus = (message, type = 'info') => {
+            statusDiv.textContent = message;
+            
+            // Update indicator color
+            const colors = {
+                info: 'bg-gray-400',
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500'
+            };
+            
+            statusIndicator.className = `w-2 h-2 rounded-full ${colors[type] || colors.info}`;
+        };
+
+        const updateConnectionStatus = (connected) => {
+            const indicator = connectionStatus.querySelector('div');
+            const text = connectionStatus.querySelector('span');
+            
+            if (connected) {
+                indicator.className = 'w-2 h-2 bg-green-500 rounded-full';
+                text.textContent = 'Connected';
+                text.className = 'text-sm text-green-600';
+            } else {
+                indicator.className = 'w-2 h-2 bg-red-500 rounded-full';
+                text.textContent = 'Disconnected';
+                text.className = 'text-sm text-red-600';
+            }
+        };
+
+        const connectSocketIO = () => {
+            if (socket && socket.connected) {
+                return;
+            }
+            socket = io();
+            socket.on('connect', () => {
+                updateStatus('Koneksi Socket.IO terhubung.', 'success');
+                updateConnectionStatus(true);
+                console.log('Socket.IO connected.');
+            });
+            socket.on('disconnect', () => {
+                updateStatus('Koneksi Socket.IO terputus.', 'error');
+                updateConnectionStatus(false);
+                console.log('Socket.IO disconnected.');
+                stopSendingStream();
+            });
+            socket.on('data_foto', (data) => {
+                console.log(data);
+                displayResults(data);
+            });
+        };
+
+        const displayResults = (data) => {
+            emptyState.classList.add('hidden');
+            
+            // Update statistics
+            faceCountDiv.textContent = data.jumlah_face || 0;
+            recognizedCountDiv.textContent = data.dikenali ? data.dikenali.length : 0;
+            
+            // Clear previous results
+            const existingResults = resultDiv.querySelectorAll('.result-item');
+            existingResults.forEach(item => item.remove());
+            
+            if (data.dikenali && data.dikenali.length > 0) {
+                data.dikenali.forEach((item, index) => {
+                    const accuracy = (item.score * 100).toFixed(1);
+                    const accuracyColor = accuracy > 80 ? 'text-green-600' : accuracy > 60 ? 'text-yellow-600' : 'text-red-600';
+                    
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item p-4 border border-gray-200 rounded-lg';
+                    resultItem.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <span class="text-primary-600 font-medium text-sm">
+                                        ${item.findUser.user.username.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">${item.findUser.user.username}</div>
+                                    <div class="text-sm text-gray-500">Pengguna</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold ${accuracyColor}">${accuracy}%</div>
+                                <div class="text-xs text-gray-500">Akurasi</div>
+                            </div>
+                        </div>
+                    `;
+                    resultDiv.appendChild(resultItem);
+                });
+            } else {
+                emptyState.classList.remove('hidden');
+            }
+        };
+
+        startCaptureButton.addEventListener('click', async () => {
+            if (screenStream) {
+                stopScreenCapture();
+                startCaptureButton.textContent = 'Mulai Tangkap Layar';
+                startCaptureButton.className = 'flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2';
+                sendStreamButton.disabled = true;
+                sendStreamButton.textContent = 'Mulai Kirim Stream';
+                recordingBadge.classList.add('hidden');
+                stopSendingStream();
+            } else {
+                try {
+                    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                    screenVideo.srcObject = screenStream;
+                    startCaptureButton.textContent = 'Hentikan Tangkap Layar';
+                    startCaptureButton.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2';
+                    sendStreamButton.disabled = false;
+                    recordingBadge.classList.remove('hidden');
+                    updateStatus('Tangkapan layar dimulai.', 'success');
+                    
+                    screenStream.getVideoTracks()[0].onended = () => {
+                        stopScreenCapture();
+                        startCaptureButton.textContent = 'Mulai Tangkap Layar';
+                        startCaptureButton.className = 'flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2';
+                        sendStreamButton.disabled = true;
+                        sendStreamButton.textContent = 'Mulai Kirim Stream';
+                        recordingBadge.classList.add('hidden');
+                        stopSendingStream();
+                        updateStatus('Berbagi layar dihentikan.', 'warning');
+                    };
+                } catch (error) {
+                    console.error('Error starting screen capture:', error);
+                    updateStatus('Gagal memulai tangkapan layar. Pastikan Anda memberikan izin.', 'error');
+                }
+            }
+        });
+
+        const stopScreenCapture = () => {
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+                screenVideo.srcObject = null;
+            }
+        };
+
+        const sendScreenFrame = () => {
+            if (socket && socket.connected && screenVideo.readyState >= 2) {
+                const canvas = document.createElement('canvas');
+                canvas.width = screenVideo.videoWidth;
+                canvas.height = screenVideo.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const base64 = dataUrl.split(',')[1];
+                const imageBuffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                
+                socket.emit('camera-frame', imageBuffer);
+            }
+        };
+
+        sendStreamButton.addEventListener('click', () => {
+            if (sendIntervalId) {
+                stopSendingStream();
+                sendStreamButton.textContent = 'Mulai Kirim Stream';
+                sendStreamButton.className = 'flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2';
+                streamingBadge.classList.add('hidden');
+                updateStatus('Pengiriman stream dihentikan.', 'warning');
+            } else {
+                if (screenStream) {
+                    connectSocketIO();
+                    sendIntervalId = setInterval(sendScreenFrame, 500);
+                    sendStreamButton.textContent = 'Hentikan Kirim Stream';
+                    sendStreamButton.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2';
+                    streamingBadge.classList.remove('hidden');
+                    updateStatus('Mulai mengirim stream layar...', 'success');
+                } else {
+                    updateStatus('Mulai tangkapan layar terlebih dahulu.', 'warning');
+                }
+            }
+        });
+
+        const stopSendingStream = () => {
+            if (sendIntervalId) {
+                clearInterval(sendIntervalId);
+                sendIntervalId = null;
+                streamingBadge.classList.add('hidden');
+            }
+        };
+
+        // Initialize
+        updateConnectionStatus(false);
+
+        window.onbeforeunload = () => {
+            stopScreenCapture();
+            stopSendingStream();
+            if (socket && socket.connected) {
+                socket.disconnect();
+            }
+        };
+    </script>
+</body>
+</html>

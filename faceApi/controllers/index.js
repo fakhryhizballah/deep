@@ -7,7 +7,7 @@ const Faces = require("../models/Faces")
 const mongoose = require('mongoose');
 const axios = require('axios');
 const HostApi = process.env.HOST_API || 'http://localhost:8000'
-const Host = process.env.HOST_API || 'http://localhost:3000'
+const Host = process.env.HOST || 'http://localhost:3000'
 module.exports = {
     indexUsers: async(req, res) => {
         try {
@@ -56,7 +56,7 @@ module.exports = {
 
                 // Simpan image
                 const [saveImage] = await Image.create(
-                    [{ url: req.body.UrlImage, user: saveUser._id }],
+                    [{ url: req.body.UrlImage }],
                     { session }
                 )
 
@@ -162,47 +162,82 @@ module.exports = {
             const users = await User.aggregate([
                 {
                     $lookup: {
-                        from: "images",              // nama collection (jamak, sesuai di MongoDB)
+                        from: "faces",
                         localField: "_id",
                         foreignField: "user",
-                        as: "images"
+                        as: "faces"
                     }
                 },
-                {
-                    $unwind: {
-                        path: "$images",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
+                { $unwind: { path: "$faces", preserveNullAndEmptyArrays: true } },
                 {
                     $lookup: {
-                        from: "faces",
-                        localField: "images._id",
-                        foreignField: "images",
-                        as: "images.faces"
+                        from: "images",
+                        localField: "faces.images",
+                        foreignField: "_id",
+                        as: "faces.images"
                     }
                 },
+                { $unwind: { path: "$faces.images", preserveNullAndEmptyArrays: true } },
                 {
                     $group: {
                         _id: "$_id",
                         username: { $first: "$username" },
                         nik: { $first: "$nik" },
-                        images: { $push: "$images" }
+                        faces: { $push: "$faces" }
                     }
                 }
             ])
             for (let x of users) {
-                for (let y of x.images) {
-                    for (let z of y.faces) {
-                        z.file = `${Host}/asset/img/${z.file}`
+                // Lakukan pengecekan
+                if (x.faces && x.faces.length > 0 && Object.keys(x.faces[0]).length > 0) {
+                    for (let y of x.faces) {
+                        y.file = `${Host}/asset/img/${y.file}`
                     }
+                } else {
+                    x.faces = []
                 }
-                
             }
             return res.status(200).json({
                 message: "success",
                 record: users.length,
                 data: users
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+    },
+    findFace: async (req, res) => {
+        try {
+            let body = req.query
+            let findUser = await Faces.find({ user: body.user }).populate('images').populate('user')
+            console.log(findUser)
+            for (let x of findUser) {
+                x.file = `${Host}/asset/img/${x.file}`
+            }
+            return res.status(200).json({
+                message: "success",
+                data: findUser
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+    },
+    findFaceUndefined: async (req, res) => {
+        try {
+            let findFace = await Faces.find({ user: null }).populate('images')
+            console.log(findFace)
+            for (let x of findFace) {
+                x.file = `${Host}/asset/img/${x.file}`
+            }
+            return res.status(200).json({
+                message: "success",
+                data: findFace,
             })
         } catch (error) {
             return res.status(500).json({
