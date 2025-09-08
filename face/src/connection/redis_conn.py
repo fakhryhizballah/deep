@@ -286,6 +286,12 @@ def find_face_internal(path: str):
         return False
     
     dataFace = [];
+    state = False
+    uuid4 = str(uuid.uuid4())
+    i = 0
+    h_img, w_img = img.shape[:2]
+    cv2.imwrite(f"./connection/data/{uuid4}.jpg", img)
+    print(f"./connection/data/{uuid4}.jpg")
     for face in faces :
         emb_query = face.normed_embedding.astype(np.float32).tobytes()
         q = Query(f"*=>[KNN {5} @face_imread $vec as vector_score]") \
@@ -300,15 +306,58 @@ def find_face_internal(path: str):
         if results.total == 0:
             print("Tidak ada hasil yang ditemukan.")
             continue 
+        similarity_score = 1 - float(results.docs[0].vector_score)
+        if similarity_score < 0.5:
+            x1, y1, x2, y2 = map(int, face.bbox)
+            # Hitung margin (misalnya 10% dari ukuran wajah)
+            w = x2 - x1
+            h = y2 - y1
+            margin_x = int(0.5 * w)
+            margin_y = int(0.5 * h)
+            # Tambahkan margin
+            x1 = max(0, x1 - margin_x)
+            y1 = max(0, y1 - margin_y)
+            x2 = min(w_img, x2 + margin_x)
+            y2 = min(h_img, y2 + margin_y)
+
+            # Crop ulang dengan margin
+            crop_face = img[y1:y2, x1:x2]
+            
+            cv2.imwrite(f"./connection/data/{uuid4}-crop{i}.jpg", crop_face)
+            r.hset(
+                f"face:{uuid4}-crop{i}",
+                mapping={
+                    "url": f"{uuid4}.jpg",
+                    "imgID": f"{uuid4}-crop{i}.jpg",
+                    "face_imread": face.normed_embedding.astype(np.float32).tobytes()
+                }
+            )
+            dataFace.append(
+                {
+                    "id": f"face:{uuid4}-crop{i}",
+                    "url": f"{uuid4}.jpg",
+                    "imgID": f"{uuid4}-crop{i}.jpg",
+                    "state": True
+                }
+            )
+            i += 1
+            state = True
+            continue
         dataFace.append(
             {
                 "id": results.docs[0].id,
-                "vector_score": results.docs[0].vector_score
+                "vector_score": results.docs[0].vector_score,
+                "state": False
             }
         )
+    if (state == False):
+        if os.path.exists("./connection/data/"+uuid4+".jpg"):
+            os.remove("./connection/data/"+uuid4+".jpg")
     
     return {
         'total': len(faces),
+        'state': state,
+        'img' : "./connection/data/"+uuid4+".jpg",
         'data' :dataFace
 
     }
