@@ -12,8 +12,30 @@ module.exports = {
     findFace: async(path) => {
         try {
             let findFace = await axios.get(HostApi + '/api/face/findID/internal?path=' + path)
-            // console.log(findFace.data)
             let faceInde = []
+            if (findFace.data.result.state == true) {
+                const session = await mongoose.startSession();
+                try {
+                    console.log(findFace.data.result)
+                    session.startTransaction();
+                    const [saveImage] = await Image.create([{ url: findFace.data.result.img }], { session });
+                    const facesData = findFace.data.result.data.map(i => ({
+                        file: i.imgID,
+                        idface: i.id,
+                        images: saveImage._id
+                    }))
+                    await Faces.insertMany(facesData, { session })
+                    await session.commitTransaction();
+                    await session.endSession();
+                    return
+                } catch (error) {
+                    await session.abortTransaction();
+                    await session.endSession();
+                    return error
+                } finally {
+                    await session.endSession(); // Memastikan sesi selalu diakhiri
+                }
+            }
             for (let y of findFace.data.result.data) {
                 let findUser = await Faces.findOne({ idface: y.id }).populate('images').populate('user')
                 // console.log(typeof findUser) 

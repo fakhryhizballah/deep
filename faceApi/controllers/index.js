@@ -18,13 +18,6 @@ module.exports = {
                     message: 'nik sudah terdaftar',
                 });
             }
-            let findUser = await User.findOne({username: req.body.username})
-            if(findUser){
-                return res.status(201).json({
-                    status: false,
-                    message: 'username sudah terdaftar',
-                });
-            }
         }catch (error) {
             return res.status(500).json({
                 message: "error",
@@ -46,6 +39,7 @@ module.exports = {
                 let body = req.body
                 let newUser = new User({
                     username: body.username,
+                    name: body.name,
                     nik: body.nik
                 })
                 // Simpan user
@@ -101,6 +95,54 @@ module.exports = {
                     data: error.message
                 });
             }
+
+    },
+    addIndexUser: async (req, res) => {
+        const session = await mongoose.startSession();
+        try {
+            let body = req.body
+            let findIdUser = await User.findOne(body.index)
+            if (!findIdUser) {
+                return res.status(404).json({
+                    message: "user not found",
+                    data: null
+                })
+            }
+            session.startTransaction();
+
+            let result = await axios.post(`${HostApi}/api/face/index/dump?url=${body.UrlImage}`)
+            if (result.data == false) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'wajah tidak ditemukan',
+                });
+            }
+            const [saveImage] = await Image.create(
+                [{ url: body.UrlImage }],
+                { session }
+            )
+            const facesData = result.data.map(i => ({
+                file: i.imgID,
+                idface: i.id,
+                images: saveImage._id,
+                user: findIdUser._id
+            }))
+            await Faces.insertMany(facesData, { session })
+            await session.commitTransaction()
+            await session.endSession();
+
+            return res.status(200).json({
+                message: 'ditambah berhasil dibuat',
+                data: Faces
+            });
+        } catch (error) {
+            await session.abortTransaction();
+            await session.endSession();
+            return res.status(400).json({
+                message: "error",
+                data: error.message
+            });
+        }
 
     },
     findUserByUrl: async (req, res) => {
@@ -231,9 +273,13 @@ module.exports = {
     findFaceUndefined: async (req, res) => {
         try {
             let findFace = await Faces.find({ user: null }).populate('images')
-            console.log(findFace)
             for (let x of findFace) {
                 x.file = `${Host}/asset/img/${x.file}`
+                if (x.images.url.startsWith('http://') || x.images.url.startsWith('https://')) {
+                    continue
+                } else {
+                    x.images.url = `${Host}/asset/img/${x.images.url}`
+                }
             }
             return res.status(200).json({
                 message: "success",

@@ -91,7 +91,6 @@ io.on('connection', (socket) => {
         fs.writeFileSync(path.join(frameDir, fileName), imageBuffer);
         socket.emit('frame', imageBuffer);
         let data = await findFace(fileName)
-        console.log(data)
         socket.emit('data_foto', data);
         setTimeout(() => {
             fs.unlinkSync(path.join(frameDir, fileName));

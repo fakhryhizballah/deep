@@ -4,6 +4,7 @@ const routes = express.Router();
 const base = require('../controllers');
 
 routes.post("/user", base.indexUsers);
+routes.post("/user/manual", base.addIndexUser);
 routes.get("/users", base.findAllUser);
 routes.post("/find/users", base.findUserByUrl);
 routes.get("/find/faceid", base.findFace);

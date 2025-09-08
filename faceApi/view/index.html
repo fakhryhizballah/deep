@@ -216,7 +216,7 @@
                 stopSendingStream();
             } else {
                 try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
                     cameraVideo.srcObject = cameraStream;
                     startCameraButton.innerHTML = `
                         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,8 +306,9 @@
             }
         };
 
-        // Initialize with default status
+        // Initialize with default status and check available cameras
         updateStatus('Siap untuk memulai');
+        getAvailableCameras();
     </script>
 </body>
 </html>
