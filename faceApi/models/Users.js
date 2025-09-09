@@ -4,7 +4,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    name: String,
+    name: {
+        type: String
+    },
     nik: {
         type: String,
         unique: true,

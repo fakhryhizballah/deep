@@ -37,14 +37,9 @@ module.exports = {
             try {
                 session.startTransaction();
                 let body = req.body
-                let newUser = new User({
-                    username: body.username,
-                    name: body.name,
-                    nik: body.nik
-                })
                 // Simpan user
                 const [saveUser] = await User.create(
-                    [{ username: body.username, nik: body.nik }],
+                    [{ username: body.username, name: body.name, nik: body.nik }],
                     { session }
                 )
 
