@@ -11,19 +11,26 @@ services:
       - REDIS_PORT=6379
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=RSUD_StrongPassword
+      - PATH_FILE=/app/connection/temp
     volumes:
       - ./faceApi/data:/app/connection/data
-  # face_api:
-  #   build: ./faceApi/
-  #   container_name: faceapi
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - MONGO_URI=mongodb://admin:strongpassword123@mongo:27017/?authSource=admin&replicaSet=rs0
-  #   volumes:
-  #     - ./faceApi/data:/app/data
-  #   networks:
-  #     - mongo-cluster
+      - ./faceApi/received_frames:/app/connection/temp
+  face_api:
+    build: ./faceApi/
+    container_name: faceapi
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://admin:strongpassword123@mongo:27017/?authSource=admin&replicaSet=rs0
+      - REDIS_HOST=10.20.0.227
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=default
+      - REDIS_PASSWORD=RSUD_StrongPassword
+    volumes:
+      - ./faceApi/data:/app/data
+      - ./faceApi/received_frames:/app/received_frames
+    networks:
+      - mongo-cluster
 #   mongo:
 #     image: mongo:latest
 #     container_name: mongo

@@ -357,7 +357,7 @@ def find_face_internal(path: str):
     return {
         'total': len(faces),
         'state': state,
-        'img' : "./connection/data/"+uuid4+".jpg",
+        'img' : uuid4+".jpg",
         'data' :dataFace
 
     }
