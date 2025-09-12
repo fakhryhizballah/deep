@@ -15,22 +15,25 @@ services:
     volumes:
       - ./faceApi/data:/app/connection/data
       - ./faceApi/received_frames:/app/connection/temp
+    networks:
+      - api-cluster
   face_api:
     build: ./faceApi/
     container_name: faceapi
     ports:
       - "3000:3000"
     environment:
-      - MONGO_URI=mongodb://admin:strongpassword123@mongo:27017/?authSource=admin&replicaSet=rs0
+      - MONGO_URI=mongodb://admin:strongpassword123@10.20.0.227:27017/faces?authSource=admin&replicaSet=rs0&directConnection=true
       - REDIS_HOST=10.20.0.227
       - REDIS_PORT=6379
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=RSUD_StrongPassword
+      - HOST_API=http://face_recognition:8000
     volumes:
       - ./faceApi/data:/app/data
       - ./faceApi/received_frames:/app/received_frames
     networks:
-      - mongo-cluster
+      - api-cluster
 #   mongo:
 #     image: mongo:latest
 #     container_name: mongo
@@ -52,6 +55,4 @@ services:
 #   mongo-data:
 
 networks:
-  mongo-cluster:
-    driver: bridge
-    external: true
+  api-cluster:

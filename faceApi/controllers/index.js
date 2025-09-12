@@ -26,7 +26,6 @@ module.exports = {
         }
         // const result = await axios.post(HostApi + '/api/face/index/url?UrlImage=' + req.body.UrlImage + '&nameId=' + req.body.username)
         const result = await axios.post(`${HostApi}/api/face/index/dump?url=${req.body.UrlImage}`)
-        console.log(result.data)
         if (result.data == false) {
             return res.status(201).json({
                 status: false,
@@ -37,11 +36,21 @@ module.exports = {
             try {
                 session.startTransaction();
                 let body = req.body
+                console.log(body)
                 // Simpan user
+                let findUsername = await User.findOne({ nik: req.body.username })
+                if (findUsername) {
+                    body.username = body.username + Math.floor(Math.random() * 100)
+                }
                 const [saveUser] = await User.create(
-                    [{ username: body.username, name: body.name, nik: body.nik }],
+                    [{
+                        username: body.username,
+                        name: body.name,
+                        nik: body.nik
+                    }],
                     { session }
                 )
+                console.log(saveUser)
 
                 // Simpan image
                 const [saveImage] = await Image.create(
@@ -245,6 +254,78 @@ module.exports = {
                 data: error
             })
         }
+    },
+    getUser: async (req, res) => {
+        try {
+            let body = req.body
+            console.log(req.query.username)
+            if (req.query.username) {
+                const users = await User.find({ username: { $regex: req.query.username, $options: 'i' } })
+                return res.status(200).json({
+                    message: "success",
+                    record: users.length,
+                    data: users
+                })
+            }
+            if (req.query.nik) {
+                const users = await User.find({ nik: { $regex: req.query.nik, $options: 'i' } })
+                return res.status(200).json({
+                    message: "success",
+                    record: users.length,
+                    data: users
+                })
+            }
+            if (req.query.id) {
+                const users = await User.find({ _id: { $regex: req.query.id, $options: 'i' } })
+                return res.status(200).json({
+                    message: "success",
+                    record: users.length,
+                    data: users
+                })
+            }
+            if (req.query.name) {
+                const users = await User.find({ name: { $regex: req.query.name, $options: 'i' } })
+                return res.status(200).json({
+                    message: "success",
+                    record: users.length,
+                    data: users
+                })
+            }
+            const users = await User.find()
+            return res.status(200).json({
+                message: "success",
+                record: users.length,
+                data: users
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+    },
+    deleteUser: async (req, res) => {
+        try {
+            let body = req.body
+            let findUser = await Faces.findById(body.id)
+            if (!findUser) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'tidak ditemukan di database',
+                });
+            }
+            let updatePreferences = await Faces.findByIdAndUpdate(body.id, { $set: { user: null } }, { new: true, runValidators: true })
+            return res.status(200).json({
+                message: "success",
+                data: findUser
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+
     },
     findFace: async (req, res) => {
         try {

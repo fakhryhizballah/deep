@@ -8,14 +8,27 @@ content-type: application/json
  "UrlImage":"http://fr.spairum.my.id/api/cdn/fr/1755932494655-413578061URAYFRILLYUTARI.jpg",
  "nik":"6172027010980002"
 }
-
-###
+### Add User
 POST  http://localhost:3000/api/user HTTP/1.1
 content-type: application/json
 
 {
- "username":"Aprianti",
- "UrlImage":"https://lh3.googleusercontent.com/cm/AGPWSu8PkwQxMUC_YGtwUuicHw6R44FiOcktxWpX6rYriWsbyG5L06voAi1zRSKqgccr8na6BA=s100"
+ "username":"URAY FRILLY UTARI",
+ "name" :"URAY FRILLY UTARI",
+ "nik":"6172027010980002"
+}
+
+### Find USER
+
+GET  http://localhost:3000/api/user?name=fak HTTP/1.1
+
+
+### DELETE FACE DARI USERS
+DELETE http://localhost:3000/api/user/face
+Content-Type: application/json
+
+{
+   "id": "68c3a3fb417779145b658956"
 }
 
 ### ADD User Index

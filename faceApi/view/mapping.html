@@ -229,19 +229,7 @@
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Identifikasi</h3>
                                     </div>
-                                    
-                                    <!-- User Selection or New Entry -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Pengguna atau Tambah Baru</label>
-                                        <select 
-                                            id="userSelection" 
-                                            onchange="handleUserSelection()"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                        >
-                                            <option value="">-- Pilih Pengguna Existing --</option>
-                                            <option value="new">+ Tambah Pengguna Baru</option>
-                                        </select>
-                                    </div>
+                        
                                     
                                     <!-- New User Form -->
                                     <div id="newUserForm" class="space-y-4">
@@ -250,7 +238,7 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
                                                 <input 
                                                     type="text" 
-                                                    id="userName" 
+                                                    id="name" 
                                                     required
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                                     placeholder="Masukkan nama lengkap"
@@ -260,7 +248,7 @@
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">NIK *</label>
                                                 <input 
                                                     type="text" 
-                                                    id="userNik" 
+                                                    id="nik" 
                                                     required
                                                     maxlength="16"
                                                     pattern="[0-9]{16}"
@@ -272,50 +260,25 @@
                                         
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Departemen/Unit</label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
                                                 <input 
                                                     type="text" 
-                                                    id="userDepartment" 
+                                                    id="username" 
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                                     placeholder="Masukkan departemen/unit"
                                                 >
                                             </div>
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Jabatan</label>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">UUID</label>
                                                 <input 
                                                     type="text" 
-                                                    id="userPosition" 
+                                                    id="_id" 
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                                     placeholder="Masukkan jabatan"
+                                                    readonly
                                                 >
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Confidence Level -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Tingkat Keyakinan Identifikasi</label>
-                                        <select 
-                                            id="confidenceLevel" 
-                                            required
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                        >
-                                            <option value="">-- Pilih Tingkat Keyakinan --</option>
-                                            <option value="high">Tinggi (90-100%) - Sangat yakin</option>
-                                            <option value="medium">Sedang (70-89%) - Cukup yakin</option>
-                                            <option value="low">Rendah (50-69%) - Kurang yakin</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- Notes -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Tambahan</label>
-                                        <textarea 
-                                            id="identificationNotes" 
-                                            rows="3"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                            placeholder="Catatan khusus tentang identifikasi ini..."
-                                        ></textarea>
                                     </div>
                                 </div>
                                 
@@ -356,30 +319,9 @@
 
     <script>
         // Sample user database for selection
-        const existingUsers = [
-            { id: '001', name: 'Dr. Ahmad Susanto', nik: '6172051234567890', department: 'Poli Jantung', position: 'Dokter Spesialis' },
-            { id: '002', name: 'Siti Rahmawati, S.Kep', nik: '6172052345678901', department: 'IGD', position: 'Perawat' },
-            { id: '003', name: 'Budi Santoso', nik: '6172053456789012', department: 'Administrasi', position: 'Staff Admin' }
-        ];
-
 
         let filteredFaces = [...allFaces];
         let currentFaceForIdentification = null;
-
-        function populateUserSelection() {
-            const userSelection = document.getElementById('userSelection');
-            userSelection.innerHTML = `
-                <option value="">-- Pilih Pengguna Existing --</option>
-                <option value="new">+ Tambah Pengguna Baru</option>
-            `;
-            
-            existingUsers.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user.id;
-                option.textContent = `${user.name} - ${user.department}`;
-                userSelection.appendChild(option);
-            });
-        }
 
         function generateFaceCards() {
             const facesGrid = document.getElementById('facesGrid');
@@ -562,7 +504,6 @@
             document.getElementById('newUserForm').style.display = 'block';
             
             modal.classList.remove('hidden');
-            populateUserSelection();
         }
 
         function editIdentification(faceId) {
@@ -584,32 +525,6 @@
         function closeIdentificationModal() {
             document.getElementById('identificationModal').classList.add('hidden');
             currentFaceForIdentification = null;
-        }
-
-        function handleUserSelection() {
-            const userSelection = document.getElementById('userSelection');
-            const newUserForm = document.getElementById('newUserForm');
-            
-            if (userSelection.value === 'new' || userSelection.value === '') {
-                newUserForm.style.display = 'block';
-                if (userSelection.value !== 'new') {
-                    // Clear form when selecting "-- Pilih Pengguna Existing --"
-                    document.getElementById('userName').value = '';
-                    document.getElementById('userNik').value = '';
-                    document.getElementById('userDepartment').value = '';
-                    document.getElementById('userPosition').value = '';
-                }
-            } else {
-                // Fill form with existing user data
-                const selectedUser = existingUsers.find(user => user.id === userSelection.value);
-                if (selectedUser) {
-                    document.getElementById('userName').value = selectedUser.name;
-                    document.getElementById('userNik').value = selectedUser.nik;
-                    document.getElementById('userDepartment').value = selectedUser.department;
-                    document.getElementById('userPosition').value = selectedUser.position;
-                    newUserForm.style.display = 'block';
-                }
-            }
         }
 
         function submitIdentification(event) {
@@ -737,7 +652,6 @@
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            populateUserSelection();
             applyFilters();
             feather.replace();
             
@@ -759,12 +673,51 @@
             });
             
             // Format NIK input
-            document.getElementById('userNik').addEventListener('input', function(e) {
+            document.getElementById('nik').addEventListener('input', async function(e) {
                 let value = e.target.value.replace(/\D/g, '');
                 if (value.length > 16) {
                     value = value.slice(0, 16);
                 }
+                if (value.length == 16) {
+                    console.log(value);
+                    let response =  await fetch('/api/user?nik='+value+'', {
+                    method: 'GET',
+                    });
+                    let data = await response.json();
+                    data = data.data[0];
+                    console.log(data);
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('username').value = data.username;
+                    document.getElementById('_id').value = data._id;
+                    }
                 e.target.value = value;
+            });
+            document.getElementById('name').addEventListener('change',async function(e) {
+                let value = e.target.value;
+                console.log(value);
+                let response =  await fetch('/api/user?name='+value+'', {
+                method: 'GET',
+                });
+                 let data = await response.json();
+                 data = data.data[0];
+                 console.log(data);
+                 document.getElementById('nik').value = data.nik;
+                 document.getElementById('username').value = data.username;
+                 document.getElementById('_id').value = data._id;
+            });
+            document.getElementById('username').addEventListener('change',async function(e) {
+                let value = e.target.value;
+                console.log(value);
+                let response =  await fetch('/api/user?username='+value+'', {
+                method: 'GET',
+                });
+                 let data = await response.json();
+                 data = data.data[0];
+                 console.log(data);
+                 document.getElementById('nik').value = data.nik;
+                 document.getElementById('name').value = data.name;
+                 document.getElementById('_id').value = data._id;
+
             });
         });
     </script>
