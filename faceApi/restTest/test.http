@@ -1,4 +1,4 @@
-
+### Index user + URL img
 POST  http://localhost:3000/api/user HTTP/1.1
 content-type: application/json
 
@@ -8,8 +8,8 @@ content-type: application/json
  "UrlImage":"http://fr.spairum.my.id/api/cdn/fr/1755932494655-413578061URAYFRILLYUTARI.jpg",
  "nik":"6172027010980002"
 }
-### Add User
-POST  http://localhost:3000/api/user HTTP/1.1
+### Add User Only
+POST  http://localhost:3000/api/user/acount HTTP/1.1
 content-type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
    "id": "68c3a3fb417779145b658956"
 }
 
-### ADD User Index
+### ADD Imagae by url to nik
 
 POST http://localhost:3000/api/user/manual
 content-type: application/json

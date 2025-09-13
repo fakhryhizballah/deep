@@ -101,6 +101,64 @@ module.exports = {
             }
 
     },
+    addUser: async (req, res) => {
+        try {
+            let findNik = await User.findOne({ nik: req.body.nik })
+            if (findNik) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'nik sudah terdaftar',
+                });
+            }
+        } catch (error) {
+            return res.status(400).json({
+                message: "error",
+                data: error
+            })
+        }
+        const session = await mongoose.startSession();
+        try {
+            session.startTransaction();
+            // Simpan user
+            let body = req.body
+            console.log(body)
+            // Simpan user
+            let findUsername = await User.findOne({ nik: req.body.username })
+            if (findUsername) {
+                body.username = body.username + Math.floor(Math.random() * 100)
+            }
+            const [saveUser] = await User.create(
+                [{
+                    username: body.username,
+                    name: body.name,
+                    nik: body.nik
+                }],
+                { session }
+            )
+            console.log(saveUser)
+
+            await session.commitTransaction()
+            await session.endSession();
+            return res.status(201).json({
+                message: 'Pengguna berhasil dibuat'
+            });
+        } catch (error) {
+            await session.abortTransaction();
+            await session.endSession();
+            // Tangani kesalahan jika data duplikat
+            if (error.code === 11000) {
+                const field = Object.keys(error.keyValue)[0];
+                const message = `Nilai '${error.keyValue[field]}' untuk field '${field}' sudah ada.`;
+                return res.status(409).json({ message }); // 409 Conflict
+            }
+            console.log(error)
+            // Tangani kesalahan validasi atau kesalahan lainnya
+            return res.status(500).json({
+                message: "error",
+                data: error.message
+            });
+        }
+    },
     addIndexUser: async (req, res) => {
         const session = await mongoose.startSession();
         try {

@@ -4,6 +4,7 @@ const routes = express.Router();
 const base = require('../controllers');
 
 routes.post("/user", base.indexUsers);
+routes.post("/user/acount", base.addUser);
 routes.post("/user/manual", base.addIndexUser);
 routes.get("/users", base.findAllUser);
 routes.get("/user", base.getUser);
