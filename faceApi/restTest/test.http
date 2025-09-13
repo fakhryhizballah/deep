@@ -9,7 +9,7 @@ content-type: application/json
  "nik":"6172027010980002"
 }
 ### Add User Only
-POST  http://localhost:3000/api/user/acount HTTP/1.1
+POST  http://localhost:3000/api/user/create HTTP/1.1
 content-type: application/json
 
 {
@@ -20,7 +20,7 @@ content-type: application/json
 
 ### Find USER
 
-GET  http://localhost:3000/api/user?name=fak HTTP/1.1
+GET  http://localhost:3000/api/user?name=Davis HTTP/1.1
 
 
 ### DELETE FACE DARI USERS
