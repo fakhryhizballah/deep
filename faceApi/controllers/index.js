@@ -181,7 +181,7 @@ module.exports = {
             }
             let findUser = await Faces.findOne({ idface: hasil.id }).populate('user')
             console.log(findUser)
-            findUser.file = `${Host}/asset/img/${findUser.file}`
+            findUser.file = `/asset/img/${findUser.file}`
             for (let y of result.data.data.docs) {
                 console.log(y)
                 y.kecocokan = 1 - (y.vector_score)
@@ -237,7 +237,7 @@ module.exports = {
                 // Lakukan pengecekan
                 if (x.faces && x.faces.length > 0 && Object.keys(x.faces[0]).length > 0) {
                     for (let y of x.faces) {
-                        y.file = `${Host}/asset/img/${y.file}`
+                        y.file = `/asset/img/${y.file}`
                     }
                 } else {
                     x.faces = []
@@ -333,7 +333,7 @@ module.exports = {
             let findUser = await Faces.find({ user: body.user }).populate('images').populate('user')
             console.log(findUser)
             for (let x of findUser) {
-                x.file = `${Host}/asset/img/${x.file}`
+                x.file = `/asset/img/${x.file}`
             }
             return res.status(200).json({
                 message: "success",
@@ -350,11 +350,11 @@ module.exports = {
         try {
             let findFace = await Faces.find({ user: null }).populate('images')
             for (let x of findFace) {
-                x.file = `${Host}/asset/img/${x.file}`
+                x.file = `/asset/img/${x.file}`
                 if (x.images.url.startsWith('http://') || x.images.url.startsWith('https://')) {
                     continue
                 } else {
-                    x.images.url = `${Host}/asset/img/${x.images.url}`
+                    x.images.url = `/asset/img/${x.images.url}`
                 }
             }
             return res.status(200).json({
