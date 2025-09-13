@@ -689,6 +689,20 @@
                 }, 300);
             }
         }
+        let dataForms = document.getElementById('identificationForm');
+        dataForms.addEventListener('submit', async function(e) {
+            e.preventDefault();
+           
+        });
+        dataForms.addEventListener('keydown', function(event) {
+        // Cek jika tombolnya Enter DAN targetnya BUKAN textarea
+        // (Karena di textarea, Enter biasanya untuk baris baru)
+            if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                console.log('Enter ditekan di dalam form, pengiriman dicegah.');
+            }
+        });
+
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
