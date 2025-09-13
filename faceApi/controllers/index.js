@@ -13,7 +13,7 @@ module.exports = {
         try {
             let findNik = await User.findOne({nik: req.body.nik})
             if(findNik){
-                return res.status(201).json({
+                return res.status(200).json({
                     status: false,
                     message: 'nik sudah terdaftar',
                 });
