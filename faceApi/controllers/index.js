@@ -443,7 +443,7 @@ module.exports = {
             let findFace = await Faces.find({ user: null }).populate('images')
             for (let x of findFace) {
                 x.file = `/asset/img/${x.file}`
-                if (x.images.url.startsWith('http://') || x.images.url.startsWith('https://')) {
+                if (x.images.url.startsWith('http://') || x.images.url.startsWith('https://') || x.images.url.startsWith('/asset/')) {
                     continue
                 } else {
                     x.images.url = `/asset/img/${x.images.url}`
