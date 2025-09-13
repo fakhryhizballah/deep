@@ -233,6 +233,7 @@
                                     
                                     <!-- New User Form -->
                                     <div id="newUserForm" class="space-y-4">
+                                        <input type="hidden" id="imgId" value="">
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
@@ -265,7 +266,7 @@
                                                     type="text" 
                                                     id="username" 
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                                    placeholder="Masukkan departemen/unit"
+                                                    placeholder="Masukkan Username"
                                                 >
                                             </div>
                                             <div>
@@ -274,8 +275,30 @@
                                                     type="text" 
                                                     id="_id" 
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                                    placeholder="Masukkan jabatan"
+                                                    placeholder="Otomatis terisi jika terdaftar"
                                                     readonly
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Operator</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="identifiedBy" 
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                                    placeholder="Masukkan nama operator"
+                                                    value="Manual Operator"
+                                                >
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Akurasi</label>
+                                                <input 
+                                                    type="number" 
+                                                    id="confidenceLevel" 
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                                    placeholder="Masukkan tingkat akurasi (%)"
+                                                    min="0" max="100"
                                                 >
                                             </div>
                                         </div>
@@ -418,22 +441,28 @@
             feather.replace();
         }
 
-        function updateStatistics() {
-            const total = filteredFaces.length;
-            const identified = filteredFaces.filter(face => face.identified).length;
-            const pending = total - identified;
-            const progress = total > 0 ? Math.round((identified / total) * 100) : 0;
+       async function updateStatistics() {
+            let response =  await fetch('/api/find/face/undefined/statistics', {
+                method: 'GET',
+                });
+                 let data = await response.json();
+                 console.log(data.data);
+                 data = data.data;
+            // const total = filteredFaces.length;
+            // const identified = filteredFaces.filter(face => face.identified).length;
+            // const pending = total - identified;
+            // const progress = total > 0 ? Math.round((identified / total) * 100) : 0;
 
-            document.getElementById('totalFaces').textContent = total;
-            document.getElementById('pendingFaces').textContent = pending;
-            document.getElementById('completedFaces').textContent = identified;
-            document.getElementById('progressPercent').textContent = progress + '%';
+            document.getElementById('totalFaces').textContent = data.totalFaces;
+            document.getElementById('pendingFaces').textContent = data.notIdentified;
+            document.getElementById('completedFaces').textContent = data.identified;
+            document.getElementById('progressPercent').textContent = data.percentage + '%';
             
-            document.getElementById('unidentifiedCount').textContent = allFaces.filter(f => !f.identified).length;
-            document.getElementById('identifiedCount').textContent = allFaces.filter(f => f.identified).length;
+            document.getElementById('unidentifiedCount').textContent = data.notIdentified;
+            document.getElementById('identifiedCount').textContent = data.identified;
             
-            const totalAll = allFaces.length;
-            const identifiedAll = allFaces.filter(f => f.identified).length;
+            const totalAll = data.totalFaces;
+            const identifiedAll = data.identified;
             const progressAll = totalAll > 0 ? Math.round((identifiedAll / totalAll) * 100) : 0;
             
             document.getElementById('progressText').textContent = `${identifiedAll} dari ${totalAll} telah diidentifikasi (${progressAll}%)`;
@@ -498,10 +527,11 @@
             document.getElementById('modalFaceImage').src = currentFaceForIdentification.file;
             document.getElementById('modalSourceImage').src = currentFaceForIdentification.images.url;
             document.getElementById('modalFaceId').textContent = currentFaceForIdentification.idface;
-
+            
             // Reset form
             document.getElementById('identificationForm').reset();
             document.getElementById('newUserForm').style.display = 'block';
+            document.getElementById('imgId').value = currentFaceForIdentification._id;
             
             modal.classList.remove('hidden');
         }
@@ -509,17 +539,15 @@
         function editIdentification(faceId) {
             currentFaceForIdentification = allFaces.find(face => face._id === faceId);
             if (!currentFaceForIdentification || !currentFaceForIdentification.identificationData) return;
-
             openIdentificationModal(faceId);
             
             // Pre-fill form with existing data
             const data = currentFaceForIdentification.identificationData;
-            document.getElementById('userName').value = data.userName || '';
-            document.getElementById('userNik').value = data.userNik || '';
-            document.getElementById('userDepartment').value = data.userDepartment || '';
-            document.getElementById('userPosition').value = data.userPosition || '';
+            document.getElementById('name').value = data.userName || '';
+            document.getElementById('nik').value = data.userNik || '';
+            document.getElementById('username').value = data.userDepartment || '';
+            document.getElementById('_id').value = data.userPosition || '';
             document.getElementById('confidenceLevel').value = data.confidenceLevel || '';
-            document.getElementById('identificationNotes').value = data.notes || '';
         }
 
         function closeIdentificationModal() {
@@ -527,22 +555,33 @@
             currentFaceForIdentification = null;
         }
 
-        function submitIdentification(event) {
+       async function submitIdentification(event) {
             event.preventDefault();
             
             if (!currentFaceForIdentification) return;
+            if (!document.getElementById('_id').value ) {
+                 showNotification('User belum ada di database', 'error');
+                return;
+            }
 
             const formData = {
-                userName: document.getElementById('userName').value,
-                userNik: document.getElementById('userNik').value,
-                userDepartment: document.getElementById('userDepartment').value,
-                userPosition: document.getElementById('userPosition').value,
-                confidenceLevel: document.getElementById('confidenceLevel').value,
-                notes: document.getElementById('identificationNotes').value,
+                _id: document.getElementById('_id').value,
+                nik: document.getElementById('nik').value,
+                username: document.getElementById('username').value,
                 identifiedBy: 'Manual Operator', // In real app, get from current user session
+                confidenceLevel: document.getElementById('confidenceLevel').value,
+                imgId: document.getElementById('imgId').value,
                 identifiedAt: new Date().toISOString()
             };
-
+            
+            console.log(formData);
+            let request = await fetch('/api/user/kyc', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
             // Update face data
             const faceIndex = allFaces.findIndex(face => face._id === currentFaceForIdentification._id);
             if (faceIndex !== -1) {
@@ -551,7 +590,8 @@
             }
 
             closeIdentificationModal();
-            applyFilters();
+            // applyFilters();
+            updateStatistics();
             showNotification('Identifikasi berhasil disimpan!', 'success');
         }
 
@@ -679,7 +719,7 @@
                     value = value.slice(0, 16);
                 }
                 if (value.length == 16) {
-                    console.log(value);
+
                     let response =  await fetch('/api/user?nik='+value+'', {
                     method: 'GET',
                     });
@@ -694,7 +734,6 @@
             });
             document.getElementById('name').addEventListener('change',async function(e) {
                 let value = e.target.value;
-                console.log(value);
                 let response =  await fetch('/api/user?name='+value+'', {
                 method: 'GET',
                 });
@@ -707,7 +746,6 @@
             });
             document.getElementById('username').addEventListener('change',async function(e) {
                 let value = e.target.value;
-                console.log(value);
                 let response =  await fetch('/api/user?username='+value+'', {
                 method: 'GET',
                 });
@@ -718,6 +756,16 @@
                  document.getElementById('name').value = data.name;
                  document.getElementById('_id').value = data._id;
 
+            });
+            document.getElementById('confidenceLevel').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 3) {
+                    value = value.slice(0, 3);
+                }
+                if (parseInt(value) > 100) {
+                    value = '100';
+                }
+                e.target.value = value;
             });
         });
     </script>

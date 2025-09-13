@@ -43,6 +43,18 @@ content-type: application/json
  "UrlImage":"http://fr.spairum.my.id/api/cdn/fr/1747785946529-909560634URAYFRILLYUTARI.jpg"
 }
 
+### KYC
+POST http://localhost:3000/api/user/kyc
+content-type: application/json
+
+{
+   "imgId":"68c3a35c417779145b657dc0",
+   "identifiedBy":"Manual Operator",
+   "_id": "68c3a274417779145b6575c9",
+   "confidenceLevel": "100"
+   
+}
+
 ### FIND ALL USER
 
 GET  http://localhost:3000/api/users HTTP/1.1
@@ -64,6 +76,9 @@ GET http://localhost:3000/api/find/faceid?user=68b8220a3ff7850a16b8a124 HTTP/1.1
 
 ### Finde Face undefined
 GET http://localhost:3000/api/find/face/undefined
+
+### Finde Face undefined statistics
+GET http://localhost:3000/api/find/face/undefined/statistics
 
 # ### edit refresn nik and name
 # PUT  http://localhost:3000/api/user HTTP/1.1

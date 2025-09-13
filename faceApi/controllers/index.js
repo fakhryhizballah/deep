@@ -207,6 +207,31 @@ module.exports = {
         }
 
     },
+    addKycUser: async (req, res) => {
+        let body = req.body
+        try {
+            let findIdUser = await User.findById(body._id)
+            if (!findIdUser) {
+                return res.status(404).json({
+                    message: "user not found",
+                    data: null
+                })
+            }
+            let updateFace = await Faces.findByIdAndUpdate(body.imgId,
+                { $set: { user: findIdUser._id } },
+                { new: true, runValidators: true })
+            return res.status(200).json({
+                message: 'ditambah berhasil dibuat',
+                data: updateFace
+            });
+        } catch (error) {
+            return res.status(400).json({
+                message: "error",
+                data: error.message
+            });
+        }
+
+    },
     findUserByUrl: async (req, res) => {
         try {
             let body = req.body
@@ -421,6 +446,26 @@ module.exports = {
             return res.status(200).json({
                 message: "success",
                 data: findFace,
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: "error",
+                data: error
+            })
+        }
+    },
+    findFaceUndefinedStatistics: async (req, res) => {
+        try {
+            let findNotUser = await Faces.countDocuments({ user: null });
+            let totalFaces = await Faces.estimatedDocumentCount();
+            return res.status(200).json({
+                message: "success",
+                data: {
+                    totalFaces: totalFaces,
+                    notIdentified: findNotUser,
+                    identified: totalFaces - findNotUser,
+                    percentage: parseFloat(((findNotUser / totalFaces) * 100).toFixed(2))
+                },
             })
         } catch (error) {
             return res.status(500).json({

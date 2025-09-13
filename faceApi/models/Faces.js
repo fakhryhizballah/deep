@@ -14,7 +14,17 @@ const faceSchema = new mongoose.Schema({
             ref: 'User',
         required: false,
         sparse: true
-        }
+    },
+    identifiedBy: {
+        type: String
+    },
+    accuracy: {
+        type: Number
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model('Faces', faceSchema);
