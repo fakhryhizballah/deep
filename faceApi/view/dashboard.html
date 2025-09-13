@@ -93,6 +93,8 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('totalUsers').textContent = data.record;
+                // document.getElementById('totalImages').textContent = data.totalImages;
+                document.getElementById('totalFaces').textContent = data.totalFaces;
                 // Generate user cards
                 // generateUserCards(data);
                 return data.data;
@@ -102,10 +104,13 @@
             });
             const userCardsContainer = document.getElementById('userCards');
             let totalImages = 0;
-            let totalFaces = 0;
 
             data.forEach(user => {
-                // totalImages += user.images.length;
+                let arrayImages = user.faces.map(image => image.images.url);
+                totalImages += arrayImages.length;
+                
+            //    let x = user.faces.map(image => image.images.url).reduce((a, b) => a + b, 0);
+            //    console.log(x);
                 // user.images.forEach(image => {
                 //     totalFaces += image.faces.length;
                 // });
@@ -135,9 +140,9 @@
                         <div class="p-6">
                         <h4 class="text-lg font-semibold text-gray-900 mb-4">Detail Gambar & Face Recognition</h4>
                         <div class="space-y-4">
-                            ${user.faces.map(image => `
+                            ${user.faces.map(faces => `
                                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 relative">
-                                    <button onclick="deleteImage('${image._id}')" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200">
+                                    <button onclick="deleteImage('${faces._id}')" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
@@ -147,8 +152,8 @@
                                         <div class="flex-shrink-0">
                                             <div class="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden">
                                                     <img 
-                                                        src="${image.file}" 
-                                                        alt="${user.username} ${image._id}" 
+                                                        src="${faces.file}" 
+                                                        alt="${user.username} ${faces._id}" 
                                                         loading="lazy"
                                                         class="w-full h-full object-cover"
                                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNSA0MEMzNSAzNi42ODYzIDM3LjY4NjMgMzQgNDEgMzRINTlDNjIuMzEzNyAzNCA2NSAzNi42ODYzIDY1IDQwVjQ2QzY1IDQ5LjMxMzcgNjIuMzEzNyA1MiA1OSA1Mkg0MUMzNy42ODYzIDUyIDM1IDQ5LjMxMzcgMzUgNDZWNDBaIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik00MCA2MEg2MEw1NS42IDY4SDQ0LjRMNDAgNjBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='"
@@ -159,8 +164,8 @@
                                             <div class="flex-1 min-w-0">
                                                 <div class="mb-3">
                                                     <p class="text-sm text-gray-600 mb-1">URL Gambar:</p>
-                                                    <a href="${image.images.url}" class="text-xs text-blue-600 bg-blue-50 p-2 rounded truncate" title="${image.images.url}">
-                                                        ${image.images.url.length > 35 ? `${image.images.url.slice(0, 35)}...` : image.images.url}
+                                                    <a href="${faces.images.url}" class="text-xs text-blue-600 bg-blue-50 p-2 rounded truncate" title="${faces.images.url}">
+                                                        ${faces.images.url.length > 35 ? `${faces.images.url.slice(0, 35)}...` : image.images.url}
                                                     </a>
                                                 </div>
                                             </div>
@@ -173,13 +178,8 @@
                 
                 userCardsContainer.appendChild(userCard);
                 }
-               
+               document.getElementById('totalImages').textContent = totalImages;
             });
-            console.log(data);
-            // Update statistics
-
-            document.getElementById('totalImages').textContent = totalImages;
-            document.getElementById('totalFaces').textContent = totalFaces;
         }
 
         // Initialize page

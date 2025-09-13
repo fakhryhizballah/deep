@@ -291,11 +291,13 @@ module.exports = {
                     }
                 }
             ])
+            let totalFaces = 0
             for (let x of users) {
                 // Lakukan pengecekan
                 if (x.faces && x.faces.length > 0 && Object.keys(x.faces[0]).length > 0) {
                     for (let y of x.faces) {
                         y.file = `/asset/img/${y.file}`
+                        totalFaces++
                     }
                 } else {
                     x.faces = []
@@ -304,6 +306,7 @@ module.exports = {
             return res.status(200).json({
                 message: "success",
                 record: users.length,
+                totalFaces: totalFaces,
                 data: users
             })
         } catch (error) {
