@@ -218,7 +218,13 @@ module.exports = {
                 })
             }
             let updateFace = await Faces.findByIdAndUpdate(body.imgId,
-                { $set: { user: findIdUser._id } },
+                {
+                    $set: {
+                        user: findIdUser._id,
+                        identifiedBy: body.identifiedBy,
+                        accuracy: parseInt(body.confidenceLevel)
+                    }
+                },
                 { new: true, runValidators: true })
             return res.status(200).json({
                 message: 'ditambah berhasil dibuat',
