@@ -595,26 +595,34 @@
             showNotification('Identifikasi berhasil disimpan!', 'success');
         }
 
-        function markAsUnidentifiable() {
+      async function markAsUnidentifiable() {
             if (!currentFaceForIdentification) return;
-
-            const faceIndex = allFaces.findIndex(face => face._id === currentFaceForIdentification._id);
-            if (faceIndex !== -1) {
-                allFaces[faceIndex].identified = true;
-                allFaces[faceIndex].identificationData = {
-                    userName: 'Tidak Dapat Diidentifikasi',
-                    userNik: 'N/A',
-                    userDepartment: '',
-                    userPosition: '',
-                    confidenceLevel: 'unidentifiable',
-                    notes: 'Wajah tidak dapat diidentifikasi karena kualitas gambar atau faktor lainnya',
-                    identifiedBy: 'Manual Operator',
-                    identifiedAt: new Date().toISOString()
-                };
-            }
+            console.log(currentFaceForIdentification._id);
+            let request = await fetch('/api/user/image', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: currentFaceForIdentification._id })
+            })
+            let response = await request.json();
+            console.log(response);
+            // if (faceIndex !== -1) {
+            //     allFaces[faceIndex].identified = true;
+            //     allFaces[faceIndex].identificationData = {
+            //         userName: 'Tidak Dapat Diidentifikasi',
+            //         userNik: 'N/A',
+            //         userDepartment: '',
+            //         userPosition: '',
+            //         confidenceLevel: 'unidentifiable',
+            //         notes: 'Wajah tidak dapat diidentifikasi karena kualitas gambar atau faktor lainnya',
+            //         identifiedBy: 'Manual Operator',
+            //         identifiedAt: new Date().toISOString()
+            //     };
+            // }
 
             closeIdentificationModal();
-            applyFilters();
+            // applyFilters();
             showNotification('Wajah ditandai sebagai tidak dapat diidentifikasi', 'warning');
         }
 
