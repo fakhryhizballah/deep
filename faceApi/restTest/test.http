@@ -20,7 +20,7 @@ content-type: application/json
 
 ### Find USER
 
-GET  http://localhost:3000/api/user?name=Davis HTTP/1.1
+GET  http://localhost:3000/api/user?name=hendra HTTP/1.1
 
 
 ### DELETE FACE DARI USERS

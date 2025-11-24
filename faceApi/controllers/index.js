@@ -103,6 +103,24 @@ module.exports = {
     },
     addUser: async (req, res) => {
         try {
+            if (!req.body.username) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'username harus diisi',
+                });
+            }
+            if (!req.body.name) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'name harus diisi',
+                });
+            }
+            if (!req.body.nik) {
+                return res.status(201).json({
+                    status: false,
+                    message: 'nik harus diisi',
+                });
+            }
             let findNik = await User.findOne({ nik: req.body.nik })
             if (findNik) {
                 return res.status(201).json({
