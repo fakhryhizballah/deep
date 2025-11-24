@@ -10,6 +10,7 @@ routes.post("/user/kyc", base.addKycUser);
 routes.get("/users", base.findAllUser);
 routes.get("/user", base.getUser);
 routes.delete("/user/face", base.deleteUser);
+routes.delete("/user/image", base.deleteImages);
 routes.post("/find/users", base.findUserByUrl);
 routes.get("/find/faceid", base.findFace);
 routes.get("/find/face/undefined", base.findFaceUndefined);

@@ -419,6 +419,62 @@ module.exports = {
         }
 
     },
+    deleteImages: async (req, res) => {
+        return res.status(200).json({
+            message: "success",
+            data: null
+        })
+    // const session = await mongoose.startSession();
+    // try {
+    //     let body = req.body
+    //     session.startTransaction();
+    //     let findUser = await Faces.findById(body.id)
+    //     if (!findUser) {
+    //         return res.status(201).json({
+    //             status: false,
+    //             message: 'tidak ditemukan di database',
+    //         });
+    //     }
+    //     console.log(findUser)
+
+    //     let findFaceID = await Faces.find({ images: findUser.images })
+    //     console.log(findFaceID)
+    //     if (findFaceID.length <= 1) {
+    //         let findImages = await Image.findById(findUser.images)
+    //         console.log(findImages)
+    //         if (findImages.url.startsWith('http://') || findImages.url.startsWith('https://')) {
+    //             console.log(findImages)
+    //             await Image.deleteOne({ _id: findUser.images }, { session })
+    //         } else {
+    //             if (fs.existsSync(path.join(__dirname, "../data", findImages.url))) {
+    //                 console.log(path.join(__dirname, "../data", findImages.url))
+    //                 fs.unlinkSync(path.join(__dirname, "../data", findImages.url))
+    //             }
+    //             await Image.deleteOne({ _id: findUser.images }, { session })
+    //         }
+    //     }
+    //     if (fs.existsSync(path.join(__dirname, "../data", findUser.file))) {
+    //         console.log(path.join(__dirname, "../data", findUser.file))
+    //         fs.unlinkSync(path.join(__dirname, "../data", findUser.file))
+    //     }
+    //     await Faces.deleteOne({ _id: body.id }, { session })
+    //     await req.cache.del(findUser.idface)
+    //     await session.commitTransaction()
+    //     await session.endSession();
+    //     return res.status(200).json({
+    //         message: "success",
+    //         data: findUser
+    //     })
+    // } catch (error) {
+    //     console.log(error)
+    //     await session.abortTransaction()
+    //     await session.endSession();
+    //     return res.status(500).json({
+    //         message: "error",
+    //         data: error
+    //     })
+    // }  
+    },
     findFace: async (req, res) => {
         try {
             let body = req.query
