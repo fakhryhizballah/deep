@@ -11,6 +11,8 @@ from insightface.app import FaceAnalysis
 from sklearn.metrics.pairwise import cosine_similarity
 load_dotenv()
 
+DIR_DATA = os.environ.get('DIR_DATA') or "./connection/data/"
+
 VECTOR_DIM = 128
 dim = 512
 INDEX_NAME = "my_face_index"
@@ -257,7 +259,7 @@ def dump_index_face(url):
         # Crop ulang dengan margin
         crop_face = img[y1:y2, x1:x2]
         
-        cv2.imwrite(f"./connection/data/{uuid4}-crop{i}.jpg", crop_face)
+        cv2.imwrite(f"DIR_DATA{uuid4}-crop{i}.jpg", crop_face)
         r.hset(
             f"face:{uuid4}-crop{i}",
             mapping={
@@ -290,8 +292,8 @@ def find_face_internal(path: str):
     uuid4 = str(uuid.uuid4())
     i = 0
     h_img, w_img = img.shape[:2]
-    cv2.imwrite(f"./connection/data/{uuid4}.jpg", img)
-    print(f"./connection/data/{uuid4}.jpg")
+    cv2.imwrite(f"DIR_DATA{uuid4}.jpg", img)
+    print(f"DIR_DATA{uuid4}.jpg")
     for face in faces :
         emb_query = face.normed_embedding.astype(np.float32).tobytes()
         q = Query(f"*=>[KNN {5} @face_imread $vec as vector_score]") \
@@ -323,7 +325,7 @@ def find_face_internal(path: str):
             # Crop ulang dengan margin
             crop_face = img[y1:y2, x1:x2]
             
-            cv2.imwrite(f"./connection/data/{uuid4}-crop{i}.jpg", crop_face)
+            cv2.imwrite(f"DIR_DATA{uuid4}-crop{i}.jpg", crop_face)
             r.hset(
                 f"face:{uuid4}-crop{i}",
                 mapping={
@@ -351,8 +353,8 @@ def find_face_internal(path: str):
             }
         )
     if (state == False):
-        if os.path.exists("./connection/data/"+uuid4+".jpg"):
-            os.remove("./connection/data/"+uuid4+".jpg")
+        if os.path.exists("DIR_DATA"+uuid4+".jpg"):
+            os.remove("DIR_DATA"+uuid4+".jpg")
     
     return {
         'total': len(faces),
