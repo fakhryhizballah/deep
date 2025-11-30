@@ -114,6 +114,7 @@
                 'bg-gray-100 text-gray-700'
             }`;
         };
+        let stateStream = 0;
 
         const connectSocketIO = () => {
             if (socket && socket.connected) {
@@ -132,8 +133,12 @@
             socket.on('data_foto', (data) => {
                 console.log(data);
                 displayResults(data);
+                if (stateStream == 1){
+                    sendCameraFrame();
+                }
             });
         };
+        connectSocketIO();
 
         const displayResults = (data) => {
             const resultDiv = document.getElementById("result");
@@ -255,14 +260,15 @@
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                 const base64 = dataUrl.split(',')[1];
                 const imageBuffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                console.log('Mengirim frame kamera ke server...');
                 
                 socket.emit('camera-frame', imageBuffer);
             }
         };
-
         sendStreamButton.addEventListener('click', () => {
-            if (sendIntervalId) {
-                stopSendingStream();
+            console.log("Tombol kirim stream diklik");
+            if (stateStream == 1) {
+                stateStream = 0;
                 sendStreamButton.innerHTML = `
                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2m-6 0h8m-8 0v2h8V4M5 16h14l-1-4H6l-1 4z"></path>
@@ -273,8 +279,10 @@
                 recordingIndicator.classList.add('hidden');
             } else {
                 if (cameraStream) {
-                    connectSocketIO();
-                    sendIntervalId = setInterval(sendCameraFrame, 100);
+
+                    // sendIntervalId = setInterval(sendCameraFrame, 5000);
+                    stateStream = 1;
+                    sendCameraFrame();
                     sendStreamButton.innerHTML = `
                         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
