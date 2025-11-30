@@ -12,6 +12,12 @@ module.exports = {
     findFace: async(path) => {
         try {
             let findFace = await axios.get(HostApi + '/api/face/findID/internal?path=' + path)
+            if (findFace.data.status == false) {
+                return {
+                    jumlah_face: 0,
+                    dikenali: []
+                }
+            }
             let faceInde = []
             if (findFace.data.result.state == true) {
                 const session = await mongoose.startSession();
