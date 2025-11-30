@@ -35,6 +35,12 @@ def find_face_by_url(url: str):
 @router.get("/face/findID/internal")
 def find_face_by_internal(path: str):
   image_path = os.environ.get('PATH_FILE')+"/"+path
+  if not os.path.exists(image_path):
+       return {
+       "status": False,
+       "message": "Wajah tidak ditemukan",
+       "data": "Wajah tidak ditemukan"
+       }
   result = find_face_internal(image_path)
   if os.path.exists(image_path):
        os.remove(image_path)
