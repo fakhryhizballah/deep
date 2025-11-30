@@ -44,7 +44,12 @@ def find_face_by_internal(path: str):
   result = find_face_internal(image_path)
   if os.path.exists(image_path):
        os.remove(image_path)
-
+  if result == False:
+       return {
+          "status": False,
+          "message": "Wajah tidak ditemukan",
+          "data": "Wajah tidak ditemukan"
+       }
   return {
        "status": True,
        "message": "Success",
