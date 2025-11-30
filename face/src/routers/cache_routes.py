@@ -36,6 +36,8 @@ def find_face_by_url(url: str):
 def find_face_by_internal(path: str):
   image_path = os.environ.get('PATH_FILE')+"/"+path
   result = find_face_internal(image_path)
+  if os.path.exists(image_path):
+       os.remove(image_path)
 
   return {
        "status": True,
