@@ -9,6 +9,8 @@ const fs = require('fs');
 const http = require('http').createServer(app); // Perbaikan: Gunakan http.createServer
 const io = require('socket.io')(http); // Perbaikan: Pasang Socket.IO ke server http
 const PORT = process.env.PORT || 3000;
+const DIR_DATA = process.env.DIR_DATA || path.join(__dirname + '/data/');
+const DIR_TEMP = process.env.DIR_TEMP || path.join(__dirname, '/received_frames/');
 
 const { findFace } = require('./controllers/soket')
 
@@ -66,7 +68,7 @@ app.use("/resource/", express.static(path.join(__dirname + '/public'), {
     }
 }));
 
-app.use("/asset/img/", express.static(path.join(__dirname + '/data/'), {
+app.use("/asset/img/", express.static(path.join(DIR_DATA), {
     setHeaders: (res, path, stat) => {
         res.set('Cache-Control', 'public, max-age=86400');
     }
@@ -76,7 +78,7 @@ const routes = require('./routes');
 app.use('/api', routes);
 
 
-const frameDir = path.join(__dirname, 'received_frames');
+const frameDir = DIR_TEMP;
 if (!fs.existsSync(frameDir)) {
     fs.mkdirSync(frameDir);
 }
@@ -86,15 +88,18 @@ io.on('connection', (socket) => {
 
     // Tangani event 'camera-frame'
     socket.on('camera-frame', async (imageBuffer) => {
+        console.log('Received camera frame');
         // Data yang diterima dari klien adalah ArrayBuffer, langsung bisa ditulis
         const fileName = `camera_frame_${Date.now()}.jpg`;
         fs.writeFileSync(path.join(frameDir, fileName), imageBuffer);
         socket.emit('frame', imageBuffer);
-        let data = await findFace(fileName)
+        let data = await findFace(fileName);
+        // console.log(data);
+
         socket.emit('data_foto', data);
-        setTimeout(() => {
-            fs.unlinkSync(path.join(frameDir, fileName));
-        }, 2000);
+        // setTimeout(() => {
+        //     fs.unlinkSync(path.join(frameDir, fileName));
+        // }, 2000);
 
 
     });
