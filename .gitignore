@@ -5,5 +5,7 @@ faceApi/package-lock.json
 faceApi/data/*
 !faceApi/data/.gitkeep
 /node
+rstp/node_modules
+rstp/package-lock.json
 .DS_Store
 .env
