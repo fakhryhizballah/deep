@@ -9,3 +9,6 @@ rstp/node_modules
 rstp/package-lock.json
 .DS_Store
 .env
+
+/faceApi/cache/*
+!/faceApi/cache/.gitkeep

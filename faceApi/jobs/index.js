@@ -1,21 +1,15 @@
+require('dotenv').config();
 const { exiftool } = require("exiftool-vendored");
 const fs = require('fs');
-let mainPath = "/Volumes/Fakhry/Backup/deep/data/";
-// try {
-//     // const data = fs.readFileSync(mainPath + '0a4c999d-b0dc-4cfe-8a1c-0ffb56b3cc8e-crop0.jpg', ['utf8']);
-//     const fileInfo = fs.statSync(mainPath + '0a4c999d-b0dc-4cfe-8a1c-0ffb56b3cc8e-crop0.jpg');
-//     console.log(fileInfo);
-    
-//     // 'data' will contain the file's content
-//     // console.log(data.toString()); // If 'data' is a Buffer and you want a string
-// } catch (err) {
-//     console.error('Error reading file:', err);
-// }
+const path = require('path');
+let mainPath = process.env.DIR_DATA || path.join(__dirname + './../data/');
+console.log(mainPath)
+
 async function finders(path){
     const filePath = path;
 
     fs.readdir(filePath, { withFileTypes: true }, (err, items) => {
-        console.log(items.length);
+        console.log(items);
         // items.forEach(item => {
         //     if (item.isFile()) {
         //         console.log("FILE →", item.name);
@@ -24,7 +18,6 @@ async function finders(path){
         //     }
         // });
     });
-
     
 }
 finders(mainPath)
