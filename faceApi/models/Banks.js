@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
-const userSchema = new mongoose.Schema({
-    username: {
+const bankSchema = new mongoose.Schema({
+    bank_name: {
         type: String,
         unique: true
     },
-    name: {
+    slug: {
         type: String
     },
-    nik: {
+    kode_transfer: {
         type: String,
         unique: true,
         sparse: true
     }
-}, { strict: false, timestamps: true });
-module.exports = mongoose.model('User', userSchema);
+}, { strict: false });
+module.exports = mongoose.model('Banks', bankSchema);
