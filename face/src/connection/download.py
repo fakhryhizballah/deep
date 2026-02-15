@@ -1,5 +1,6 @@
 import requests
 import os
+import base64
 
 def download_image(url: str, filename: str = None):
     """
@@ -21,3 +22,15 @@ def download_image(url: str, filename: str = None):
         return filepath
     else:
         raise Exception(f"Gagal download gambar. Status code: {response.status_code}")
+    
+
+def DecodingImage(base64_string):
+    # 1. Ubah kembali string base64 menjadi bytes
+    img_binary = base64.b64decode(base64_string)
+    os.makedirs("./connection/cache", exist_ok=True)
+    
+    # 2. Simpan gambar dalam format PNG
+    img_path = os.path.join("./connection/cache", "image-base64.jpg")
+    with open(img_path, "wb") as f:
+        f.write(img_binary)
+    return img_path
