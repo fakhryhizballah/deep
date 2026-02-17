@@ -4,7 +4,7 @@ import redis
 import os
 import uuid
 from dotenv import load_dotenv
-from .download import download_image
+from .download import download_image, DecodingImage
 
 import cv2
 from insightface.app import FaceAnalysis
@@ -110,74 +110,22 @@ def add_face_to_index(url,nameId):
     if os.path.exists(image_path):
             os.remove(image_path)
     return True
-    # else:
-    #     print(f"Tidak ada wajah yang terdeteksi di {image_path}. Gagal menyimpan.")
-    #     return False
 
-# --- 4. Fungsi untuk Mengidentifikasi Wajah dengan Pencarian Vektor ---
-# def identify_face_with_vector_search(url):
-#     """
-#     Muat wajah uji dan lakukan pencarian kesamaan vektor 1:N di Redis.
-#     """
-#     image_path = download_image(url)
-#     probe_image = face_recognition.load_image_file(image_path)
-#     probe_face_encodings = face_recognition.face_encodings(probe_image)
-    
-    
-#     if not probe_face_encodings:
-#         print("Tidak ada wajah yang terdeteksi pada gambar uji.")
-#         return None
-    
-#     probe_face_encoding = np.array(probe_face_encodings[0], dtype=np.float32)
-    
-#     k = 2 # Jumlah tetangga terdekat (nearest neighbors) yang ingin diambil
-#     query_vector = probe_face_encoding.tobytes()
-    
-    
-#     # --- Perbaikan: Gunakan Query yang sudah diimpor secara langsung ---
-#     query = (
-#         Query(
-#             f"*=>[KNN {k} @face_encoding $query_vector AS vector_score]"
-#         )
-#         .sort_by("vector_score")
-#         .return_fields("name", "vector_score")
-#         .dialect(2)
-#     )
+def add_face_to_index_base64(image_path,imgID):
+    embedding = extract_embedding(image_path)
+    r.hset(
+            f"face:{imgID}",
+            mapping={
+                "imgID": imgID,
+                "face_imread": embedding.astype(np.float32).tobytes()
+            }
+        )
+    print(f"Wajah '{imgID}' berhasil disimpan di Redis.")
+    if os.path.exists(image_path):
+            os.remove(image_path)
+    return True
+    # image = face_recognition.load_image_file(image_path)
 
-#     results = r.ft(INDEX_NAME).search(
-#         query, 
-#         query_params={
-#             "query_vector": query_vector
-#         }
-#     )
-#     print(results.total)
-#     return results
-#     if results.total == 0:
-#         print("Tidak ada hasil yang ditemukan.")
-#         return False
-#     print(results)
-#     first_result = results.docs[0]
-#     name = first_result.name
-#     data = r.hgetall(f"face:{name}")
-#     print(data[b"name"].decode("utf-8"))
-#     if os.path.exists(image_path):
-#         os.remove(image_path)
-    
-#     similarity_score = 1 - float(first_result.vector_score)
-    
-#     if similarity_score > 0.8:
-#         print(f"Wajah terdeteksi! Mungkin adalah: {name} (Skor Kesamaan: {similarity_score:.2f})")
-#         results = {
-#             "nameId": name,
-#             "similarity_score": similarity_score,
-#             "url": data[b"url"].decode("utf-8"),
-#             "imgID": data[b"imgID"].decode("utf-8"),
-#             "results": results
-#         }
-#         return results
-#     else:
-#         print(f"Wajah terdeteksi, tetapi tidak cocok dengan siapa pun di database. Skor terbaik: {similarity_score:.2f}")
-#         return False
 
 def identify_face_imread_with_vector_search(image_path):
     emb_query = extract_embedding(image_path)
@@ -204,30 +152,6 @@ def extract_embedding(image_path):
 
     if len(faces) == 0:
         return False
-    # Ambil wajah pertama
-    # return None
-    # Simpan wajah yang terdeteksi
-        # h_img, w_img = img.shape[:2]
-        # i = 0
-    # for face in faces :
-    #     x1, y1, x2, y2 = map(int, face.bbox)
-
-    #     # Hitung margin (misalnya 10% dari ukuran wajah)
-    #     w = x2 - x1
-    #     h = y2 - y1
-    #     margin_x = int(1 * w)
-    #     margin_y = int(1 * h)
-    #     # Tambahkan margin
-    #     x1 = max(0, x1 - margin_x)
-    #     y1 = max(0, y1 - margin_y)
-    #     x2 = min(w_img, x2 + margin_x)
-    #     y2 = min(h_img, y2 + margin_y)
-
-    #     # Crop ulang dengan margin
-    #     crop_face = img[y1:y2, x1:x2]
-        
-    #     cv2.imwrite(f"{image_path}.crop{i}.jpg", crop_face)
-    #     i += 1
 
     return faces[0].normed_embedding
 
