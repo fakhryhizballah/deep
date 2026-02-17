@@ -139,49 +139,47 @@ async function updateNIP() {
 // updateNIP()
 async function  addNewUser() {
     // 1. Ambil data dari file dan paksa jadi String + Trim spasi
-    const rawData = JSON.parse(fs.readFileSync('cache/Users.json', 'utf8'));
-    const niksInFile = rawData.map(x => String(x.nik).trim());
+    const rawData = JSON.parse(fs.readFileSync('cache/dataRSU_Full.json', 'utf8'));
 
-    // 2. Cari di DB (Gunakan Projection agar ringan)
-    const existingUsers = await User.find(
-        { nik: { $in: niksInFile } },
-        { nik: 1, _id: 0 }
-    );
-
-    // 3. Normalisasi data dari DB menjadi Set String agar perbandingan akurat
-    const niksInDBSet = new Set(existingUsers.map(u => String(u.nik).trim()));
-
-    // 4. Filter data yang benar-benar tidak ada di DB
-    const missingInDB = rawData.filter(user => {
-        const normalizedNik = String(user.nik).trim();
-        return !niksInDBSet.has(normalizedNik);
-    });
-
-    console.log(`Jumlah di file: ${niksInFile.length}`);
-    console.log(`Jumlah ditemukan di DB: ${niksInDBSet.size}`);
-    console.log(`Data yang benar-benar baru: ${missingInDB.length}`);
-    console.log(missingInDB)
-    for (let x of missingInDB) {
-        await User.create(
-            {
-                username: x.nik,
-                nik: x.nik,
-                tgl_lahir: new Date(x.tgl_lahir.split('/').reverse().join('-')), // Cara lebih singkat membalik tgl
-                jenis_kelamin: x.jenis_kelamin,
-                status_kerja: x.status,
+    for (let x of rawData) {
+        console.log(x)
+        // console.log(x['Nama Lengkap'])
+        let isextis = await User.findOne({ nik: x.NIK })
+        console.log(isextis)
+        if (!isextis) {
+            console.log(x.NIK)
+            let createUser = await User.create({
+                username: x.NIK,
+                name: x['Nama Lengkap'],
+                nik: x.NIK,
+                instansi: ['RSU SAADAH SINGKAWANG'],
                 kontak: {
-                    email: x.email,
-                    no_hp: x.wa,
-                    instansi: 'RSUD DR ABDUL AZIZ SINGKAWANG'
+                    email: [x.Email],          // array
+                    no_hp: [x['No. HP']],      // array
+                    alamat: [x['Alamat']],     // array
+                }
+            });
+            console.log(createUser)
+        } else {
+            let updateUser = await User.findOneAndUpdate(
+                { nik: x.NIK },
+                {
+                    $addToSet: {
+                        "instansi": "RSU SAADAH SINGKAWANG",
+                        "kontak.email": x.Email,
+                        "kontak.no_hp": x['No. HP'],
+                        "kontak.alamat": x.Alamat
+                    }
                 },
-            }
-        )
+                { new: true } // Mengembalikan data terbaru setelah update
+            );
+        }
     }
 
     mongoose.disconnect();
     console.log('Mongoose disconnected');
 }
-// addNewUser()
+addNewUser()
 async function adduserNik(params) {
     let dataUsers = fs.readFileSync('cache/11. GAJI P3K NOPEMBER 2025_Full.json');
     dataUsers = JSON.parse(dataUsers)
