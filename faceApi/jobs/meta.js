@@ -212,8 +212,8 @@ async function satusehat(NIK) {
         if (result.fotoPath != null) {
             console.log(result)
 
-            // let indexfinal = await ihs(NIK, result.fotoPath, path.basename(result.fotoPath))
-            // console.log(indexfinal)
+            let indexfinal = await ihs(NIK, result.fotoPath, path.basename(result.fotoPath))
+            console.log(indexfinal)
             try {
                 result.fotoPath = path.basename(result.fotoPath)
                 let updateUser = await User.findOneAndUpdate(
@@ -254,7 +254,7 @@ async function satusehat(NIK) {
 }
 // satusehat('6171051111980007')
 async function findNakes() {
-    let findNIK = await User.find({ str: { $exists: false } }).limit(2)
+    let findNIK = await User.find({ str: { $exists: true } }).limit(200)
     console.log(findNIK)
     for (let x of findNIK) {
     let result = await satusehat(x.nik)
