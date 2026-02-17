@@ -335,6 +335,7 @@ module.exports = {
                     $group: {
                         _id: "$_id",
                         username: { $first: "$username" },
+                        name: { $first: "$name" },
                         nik: { $first: "$nik" },
                         faces: { $push: "$faces" }
                     }
@@ -346,6 +347,10 @@ module.exports = {
                 if (x.faces && x.faces.length > 0 && Object.keys(x.faces[0]).length > 0) {
                     for (let y of x.faces) {
                         y.file = `/asset/img/${y.file}`
+                        if (y.images.url.startsWith('http://') || y.images.url.startsWith('https://')) {
+                        } else {
+                            y.images.url = `${Host}/asset/img/${y.images.url}`
+                        }
                         totalFaces++
                     }
                 } else {
