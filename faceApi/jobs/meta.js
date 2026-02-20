@@ -177,7 +177,7 @@ async function ihs(nik, filedir, filename) {
     return false
 }
 // ihs('6171035002940002', './images/LR00000963549624.jpg', 'LR00000963549624.jpg')
-
+let data_nik = []
 async function satusehat(NIK) {
     let config = {
         method: 'get',
@@ -185,19 +185,22 @@ async function satusehat(NIK) {
         url: 'https://api-satusehat.kemkes.go.id/fhir-r4/v1/Practitioner?identifier=https://fhir.kemkes.go.id/id/nik|' + NIK,
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer y76aW6ZdJGw59U5OegL7Z9B36TBw'
+            'Authorization': 'Bearer cw5E4PUdx4H7I40tbvVKE5injIDi'
         }
     };
-    let response = await axios(config)
-    if (response.data.entry.length == 0) {
-        return res.status(201).json({
-            status: false,
-            message: 'tidak ditemukan di database',
-        });
+    let { status, data } = await axios(config).then(res => ({ status: res.status, data: res.data })).catch(err => ({ status: err.response.status, data: err.response.data }));
+    console.log(status, data);
+    if (status == 400 || status == 404) {
+        data_nik.push(NIK)
+        return false
+    }
+    if (data.entry.length == 0) {
+        data_nik.push(NIK)
+        return false
     }
     let noSTR = []
-    // console.log(response.data.entry[0])
-    for (let x of response.data.entry[0].resource.qualification) {
+    // console.log(data.entry[0])
+    for (let x of data.entry[0].resource.qualification) {
         // console.log(x.identifier)
         if (x.identifier[0].value.includes('/')) {
             continue
@@ -254,12 +257,14 @@ async function satusehat(NIK) {
 }
 // satusehat('6171051111980007')
 async function findNakes() {
-    let findNIK = await User.find({ str: { $exists: true } }).limit(200)
+    let findNIK = await User.find({ str: { $exists: false }, instansi: "RSUD DR ABDUL AZIZ SINGKAWANG" }).limit(500)
     console.log(findNIK)
     for (let x of findNIK) {
     let result = await satusehat(x.nik)
     console.log(result)
     }
+    console.log('Finish', findNIK.length)
+    console.log(data_nik)
     
 }
 findNakes()
