@@ -254,7 +254,7 @@ async function satusehat(NIK) {
 }
 // satusehat('6171051111980007')
 async function findNakes() {
-    let findNIK = await User.find({ str: { $exists: true } }).limit(200)
+    let findNIK = await User.find({ str: { $exists: true }, instansi: RegExp("RSU SAADAH SINGKAWANG", "i") }).limit(200)
     console.log(findNIK)
     for (let x of findNIK) {
     let result = await satusehat(x.nik)
