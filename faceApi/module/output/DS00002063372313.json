@@ -1,0 +1,21 @@
+{
+  "noSTR": "DS00002063372313",
+  "validasiSTR": "Tervalidasi",
+  "nama": "AFIF MUHAMMAD",
+  "jenisKelamin": "Laki-laki",
+  "kompetensi": "Ners",
+  "statusKecukupanSKP": "Tidak Cukup (per tanggal 17 Februari 2026, 22:23 WIB)",
+  "periodePemenuhanSKP": "27 Agustus 2021 - 26 Agustus 2026",
+  "sips": [
+    {
+      "sipNo": "503/SIPP/056/PPNP-B/2022",
+      "tanggalTerbit": "13 April 2022",
+      "tanggalBerakhir": "26 Agustus 2026",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "Contoh:",
+  "fotoPath": "../../../../../../../Volumes/Fakhry/Backup/deep/data/DS00002063372313.jpg"
+}

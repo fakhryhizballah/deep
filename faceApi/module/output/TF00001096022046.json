@@ -1,0 +1,29 @@
+{
+  "noSTR": "TF00001096022046",
+  "validasiSTR": "Tervalidasi",
+  "nama": "TAUFIK SETYAWAN",
+  "jenisKelamin": "Laki-laki",
+  "kompetensi": "Apoteker",
+  "statusKecukupanSKP": "Tidak Cukup (per tanggal 18 Februari 2026, 00:24 WIB)",
+  "periodePemenuhanSKP": "14 April 2024 - 13 April 2029",
+  "sips": [
+    {
+      "sipNo": "503/SIPA-048/PPT-A/2019",
+      "tanggalTerbit": "28 Oktober 2019",
+      "tanggalBerakhir": "-",
+      "tempatPraktik": "ORGANISASI PROFESI IAI",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    },
+    {
+      "sipNo": "B / 800.1.11.1 / SIPA - 031 / PNP / 2024",
+      "tanggalTerbit": "11 Juli 2024",
+      "tanggalBerakhir": "13 April 2029",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "Contoh:",
+  "fotoPath": "../../../../../../../Volumes/Fakhry/Backup/deep/data/TF00001096022046.jpg"
+}

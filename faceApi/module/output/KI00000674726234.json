@@ -1,0 +1,37 @@
+{
+  "noSTR": "KI00000674726234",
+  "validasiSTR": "Tervalidasi",
+  "nama": "AGUSTINUS BUDHI PRASETIO",
+  "jenisKelamin": "Laki-laki",
+  "kompetensi": "Dokter Spesialis Orthopaedi dan Traumatologi",
+  "statusKecukupanSKP": "Tidak Cukup (per tanggal 17 Februari 2026, 23:40 WIB)",
+  "periodePemenuhanSKP": "06 Juni 2024 - 05 Juni 2029",
+  "sips": [
+    {
+      "sipNo": "446/1708/SIPdokter/DPMPTSP/SIMPOK/XI/2024",
+      "tanggalTerbit": "25 November 2024",
+      "tanggalBerakhir": "25 Agustus 2026",
+      "tempatPraktik": "RS Primaya Depok",
+      "provinsi": "Jawa Barat",
+      "kabKota": "Kota Depok"
+    },
+    {
+      "sipNo": "440/1549/SIPD/DPM-PTSP.24",
+      "tanggalTerbit": "03 Juli 2024",
+      "tanggalBerakhir": "25 Agustus 2026",
+      "tempatPraktik": "RS Umum Permata Bekasi",
+      "provinsi": "Jawa Barat",
+      "kabKota": "Kota Bekasi"
+    },
+    {
+      "sipNo": "446/0971/SIPdokter/DPMPTSP/SIMPOK/VII/2024",
+      "tanggalTerbit": "03 Juli 2024",
+      "tanggalBerakhir": "25 Agustus 2026",
+      "tempatPraktik": "RS Umum Bhayangkara Brimob",
+      "provinsi": "Jawa Barat",
+      "kabKota": "Kota Depok"
+    }
+  ],
+  "lastUpdated": "17 Februari 2026, 17:19 WIB",
+  "fotoPath": "../../../../../../../Volumes/Fakhry/Backup/deep/data/KI00000674726234.jpg"
+}

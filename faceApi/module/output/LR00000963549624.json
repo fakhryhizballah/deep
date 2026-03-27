@@ -1,0 +1,21 @@
+{
+  "noSTR": "LR00000963549624",
+  "validasiSTR": "Tervalidasi",
+  "nama": "ZANETA RACHMADIAH",
+  "jenisKelamin": "Perempuan",
+  "kompetensi": "Dietisien",
+  "statusKecukupanSKP": "Tercukupi (per tanggal 17 Februari 2026, 22:57 WIB)",
+  "periodePemenuhanSKP": "11 Februari 2021 - 10 Februari 2026",
+  "sips": [
+    {
+      "sipNo": "503/SIKTGz-005/PPNP-B/2022",
+      "tanggalTerbit": "12 Juli 2022",
+      "tanggalBerakhir": "10 Februari 2026",
+      "tempatPraktik": "SINGKAWANG TENGAH II",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "Contoh:",
+  "fotoPath": "../../../../../../../Volumes/Fakhry/Backup/deep/data/LR00000963549624.jpg"
+}

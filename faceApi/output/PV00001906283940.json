@@ -1,0 +1,21 @@
+{
+  "noSTR": "PV00001906283940",
+  "validasiSTR": "Tervalidasi",
+  "nama": "SAUDURMA SIRAIT",
+  "jenisKelamin": "Perempuan",
+  "kompetensi": "Ners",
+  "statusKecukupanSKP": "Tercukupi (per tanggal 11 Februari 2026, 00:37 WIB)",
+  "periodePemenuhanSKP": "01 Januari 2000 - 10 Februari 2026",
+  "sips": [
+    {
+      "sipNo": "503/SIPP/059/PPNP-B/2022",
+      "tanggalTerbit": "13 April 2022",
+      "tanggalBerakhir": "-",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "Contoh:",
+  "fotoPath": "images/PV00001906283940.jpg"
+}

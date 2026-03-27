@@ -1,0 +1,29 @@
+{
+  "noSTR": "CR00000408890904",
+  "validasiSTR": "Tervalidasi",
+  "nama": "SITI HARMINI AGUSTA",
+  "jenisKelamin": "Perempuan",
+  "kompetensi": "Fisioterapis",
+  "statusKecukupanSKP": "Tercukupi (per tanggal 10 Februari 2026, 23:42 WIB)",
+  "periodePemenuhanSKP": "05 Agustus 2024 - 04 Agustus 2029",
+  "sips": [
+    {
+      "sipNo": "B / 800. 1.11.1 / SIPF - 004 / PNP / 2024",
+      "tanggalTerbit": "16 Juli 2024",
+      "tanggalBerakhir": "04 Agustus 2029",
+      "tempatPraktik": "ORGANISASI PROFESI IFI",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    },
+    {
+      "sipNo": "B / 800. 1.11.1 / SIPF - 004 / PNP / 2024",
+      "tanggalTerbit": "16 Juli 2024",
+      "tanggalBerakhir": "04 Agustus 2029",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "10 Februari 2026, 17:29 WIB",
+  "fotoPath": "images/CR00000408890904.jpg"
+}

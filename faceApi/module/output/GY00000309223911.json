@@ -1,0 +1,21 @@
+{
+  "noSTR": "GY00000309223911",
+  "validasiSTR": "Tervalidasi",
+  "nama": "HENDRA, A.Md.KL",
+  "jenisKelamin": "Laki-laki",
+  "kompetensi": "Tenaga Sanitasi Lingkungan Level 5",
+  "statusKecukupanSKP": "Tidak Cukup (per tanggal 18 Februari 2026, 00:31 WIB)",
+  "periodePemenuhanSKP": "04 Mei 2023 - 03 Mei 2028",
+  "sips": [
+    {
+      "sipNo": "500.16.7.2/SIKTS-003/PPNP-B/2023",
+      "tanggalTerbit": "09 Februari 2023",
+      "tanggalBerakhir": "03 Mei 2028",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "Contoh:",
+  "fotoPath": "../../../../../../../Volumes/Fakhry/Backup/deep/data/GY00000309223911.jpg"
+}

@@ -1,0 +1,29 @@
+{
+  "noSTR": "IH00000634255514",
+  "validasiSTR": "Tervalidasi",
+  "nama": "Sunarsih",
+  "jenisKelamin": "Perempuan",
+  "kompetensi": "Bidan Vokasi Level 5",
+  "statusKecukupanSKP": "Tidak Cukup (per tanggal 10 Februari 2026, 22:44 WIB)",
+  "periodePemenuhanSKP": "21 Maret 2022 - 20 Maret 2027",
+  "sips": [
+    {
+      "sipNo": "500.16.7.2/SIPB/060/PDNP-B/2023",
+      "tanggalTerbit": "10 April 2023",
+      "tanggalBerakhir": "20 Maret 2027",
+      "tempatPraktik": "ORGANISASI PROFESI IBI",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    },
+    {
+      "sipNo": "500.16.7.2/SIPB/060/PDNP-B/2023",
+      "tanggalTerbit": "10 April 2023",
+      "tanggalBerakhir": "20 Maret 2027",
+      "tempatPraktik": "RS Umum Daerah Dr. Abdul Aziz Singkawang",
+      "provinsi": "Kalimantan Barat",
+      "kabKota": "Kota Singkawang"
+    }
+  ],
+  "lastUpdated": "10 Februari 2026, 16:56 WIB",
+  "fotoPath": "images/IH00000634255514.jpg"
+}
