@@ -20,7 +20,7 @@ async function finders(path){
     });
     
 }
-finders(mainPath)
+// finders(mainPath)
 async function readExif(path) {
     const filePath = path;
 

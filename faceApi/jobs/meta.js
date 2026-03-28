@@ -99,17 +99,18 @@ async function addIndexBase64(filedir, filename) {
 
 
 async function siapaAja(filedir) {
-    let metacek = await exiftool.read(filedir, {
+    // let metacek = await exiftool.read(filedir, {
 
-    })
-    console.log(metacek)
+    // })
+    // console.log(metacek)
     let file = fs.readFileSync(filedir, 'base64');
     let body = {
         base64: file
     }
     let response = await axios.post(HostApi + '/api/face/findIDs/base64', body)
-    if (response.data.data.length == 0) {
-        return res.status(201).json({
+    console.log(response.data)
+    if (response.data.data == null) {
+        return ({
             status: false,
             message: 'wajah tidak ditemukan',
         });
@@ -117,10 +118,10 @@ async function siapaAja(filedir) {
     console.log("Jumlah wajah", response.data.data.length)
     let subject = []
     for (let x of response.data.data) {
-        x = x.docs[0]
+        // x = x.docs[0]
         let index = 0;
         console.log(x)
-        let kecocokan = 1 - (x.vector_score)
+        let kecocokan = 1 - (x.search_result.docs[0].vector_score)
         let status = ""
         if (kecocokan >= 0.85) {
             status = "Cocok";
@@ -135,7 +136,7 @@ async function siapaAja(filedir) {
             status = "Tidak Cocok";
         }
         if (index == 1) {
-            let findUser = await Faces.findOne({ idface: x.id }).populate('user')
+            let findUser = await Faces.findOne({ idface: x.search_result.docs[0].id }).populate('user')
             console.log(status, kecocokan)
             console.log(findUser)
             subject.push(findUser.user.name)
@@ -147,7 +148,7 @@ async function siapaAja(filedir) {
     console.log(meta)
     return meta
 }
-// siapaAja('./images/LR00000963549624.jpg')
+// siapaAja('./images/6172011110950001.jpg')
 
 async function ihs(nik, filedir, filename) {
     let findUser = await User.findOne({ nik: nik })
@@ -257,11 +258,8 @@ async function satusehat(NIK) {
 }
 // satusehat('6171051111980007')
 async function findNakes() {
-<<<<<<< HEAD
     let findNIK = await User.find({ str: { $exists: true }, instansi: RegExp("RSU SAADAH SINGKAWANG", "i") }).limit(200)
-=======
-    let findNIK = await User.find({ str: { $exists: false }, instansi: "RSUD DR ABDUL AZIZ SINGKAWANG" }).limit(500)
->>>>>>> fe9924daf7ad7b280f9d50129462709a921da8d5
+
     console.log(findNIK)
     for (let x of findNIK) {
     let result = await satusehat(x.nik)
@@ -271,4 +269,4 @@ async function findNakes() {
     console.log(data_nik)
     
 }
-findNakes()
+// findNakes()

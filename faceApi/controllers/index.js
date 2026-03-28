@@ -312,7 +312,31 @@ module.exports = {
     },
     findAllUser: async (req, res) => {
         try {
-            const users = await User.aggregate([
+            let params = req.query
+            console.log(params)
+            // 1. Buat object query dinamis untuk tahap $match
+            let matchQuery = {};
+
+            if (params.username) {
+                matchQuery.username = { $regex: params.username, $options: "i" }; // "i" untuk case-insensitive
+            }
+            if (params.name) {
+                matchQuery.name = { $regex: params.name, $options: "i" };
+            }
+            if (params.nik) {
+                matchQuery.nik = { $regex: params.nik, $options: "i" };
+            }
+
+            // 2. Susun pipeline agregasi
+            const pipeline = [];
+
+            // Tambahkan $match di awal pipeline jika ada parameter pencarian
+            if (Object.keys(matchQuery).length > 0) {
+                pipeline.push({ $match: matchQuery });
+            }
+
+            // Tambahkan sisa pipeline Anda
+            pipeline.push(
                 {
                     $lookup: {
                         from: "faces",
@@ -340,7 +364,10 @@ module.exports = {
                         faces: { $push: "$faces" }
                     }
                 }
-            ])
+            );
+
+            // 3. Eksekusi agregasi
+            const users = await User.aggregate(pipeline);
             let totalFaces = 0
             for (let x of users) {
                 // Lakukan pengecekan
