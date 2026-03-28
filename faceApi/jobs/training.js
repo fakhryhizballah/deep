@@ -31,7 +31,7 @@ async function siapaAja(filedir) {
         base64: file
     }
     let response = await axios.post(HostApi + '/api/face/findIDs/base64', body)
-    if (response.data.data == null) {
+    if (response.data.data == null || response.data.data == false) {
         return false
     }
     console.log("Jumlah wajah", response.data.data.length)
@@ -78,12 +78,15 @@ async function siapaAja(filedir) {
         }
     }
 }
-// siapaAja('./images/DSC00974.JPG')
+// siapaAja('./images/DEV00398.jpeg')
 async function findall() {
     let datafiles = fs.readdirSync('./images')
     for await (const file of datafiles) {
         console.log(file)
-        await siapaAja('./images/' + file)
+        let x = await siapaAja('./images/' + file)
+        console.log(x)
+
+        // return
     }
     
 }

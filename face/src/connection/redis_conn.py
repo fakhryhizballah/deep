@@ -148,6 +148,9 @@ def identify_face_imread_with_vector_search(image_path):
 
 def identify_multipel_face_imread_with_vector_search(image_path):
     img = cv2.imread(image_path)
+    if img is None:
+        print(f"Failed to read image: {image_path}")
+        return False
     faces = app.get(img)
     if len(faces) == 0:
         return False

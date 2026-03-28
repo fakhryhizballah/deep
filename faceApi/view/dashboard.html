@@ -144,6 +144,9 @@
         // Inisialisasi Feather Icons
         feather.replace();
 
+        // Variable global untuk menyimpan controller fetch saat ini
+        let currentAbortController = null;
+
         // Utilitas Format NIK
         function formatNIK(nik) {
             if(!nik) return "-";
@@ -200,6 +203,13 @@
             const loader = document.getElementById('loader');
             const emptyState = document.getElementById('emptyState');
             
+            // Batalkan request sebelumnya jika masih berjalan
+            if (currentAbortController) {
+                currentAbortController.abort();
+            }
+            // Buat AbortController baru untuk request saat ini
+            currentAbortController = new AbortController();
+
             // Set Loading UI
             userCardsContainer.innerHTML = '';
             loader.classList.remove('hidden');
@@ -208,8 +218,8 @@
             const url = queryString ? `/api/users?${queryString}` : '/api/users';
             
             try {
-                // Simulasi Fetch ke API (Gunakan baris fetch asli jika server aktif)
-                const response = await fetch(url);
+                // Sertakan sinyal abort ke dalam fetch
+                const response = await fetch(url, { signal: currentAbortController.signal });
                 
                 // MOCK UP DATA TANGKAPAN JIKA API GAGAL AGAR PREVIEW TETAP BERJALAN
                 let data = null;
@@ -222,6 +232,12 @@
                 renderDashboard(data);
                 
             } catch (error) {
+                // Abaikan error jika itu adalah hasil dari pembatalan (abort)
+                if (error.name === 'AbortError') {
+                    console.log('Fetch sebelumnya dibatalkan karena ada request baru.');
+                    return; // Jangan lanjutkan ke mock data atau render
+                }
+
                 console.warn('Menggunakan data sampel karena API tidak tersedia.');
                 // MOCK DATA: Digunakan hanya sebagai fallback ketika API error
                 // Simulasi memfilter berdasarkan input yang diketik agar preview lebih interaktif
@@ -377,7 +393,7 @@
                 
                 try {
                     // Eksekusi API Hapus
-                    const response = await fetch('/api/user/image', {
+                    const response = await fetch('/api/user/face', {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
