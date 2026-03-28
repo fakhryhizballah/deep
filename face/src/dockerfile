@@ -1,9 +1,5 @@
 FROM python:3.9-slim
 
-WORKDIR /app
-
-# COPY requirements.txt .
-COPY . .
 
 # RUN pip install -r requirements.txt
 # RUN /bin/sh -c pip install --no-cache-dir -r requirements.txt
@@ -17,22 +13,28 @@ git \
     libxrender1 \
     libgl1 \
 && rm -rf /var/lib/apt/lists/*
-# RUN pip install \
-#         # --no-cache-dir \
-#         # dlib \
-#         # opencv-python \
-#         face_recognition
-# RUN pip install torch torchvision insightface
-RUN pip install --upgrade pip
-RUN pip install opencv-python insightface scikit-learn numpy
-RUN pip install onnxruntime
-RUN pip install redis
-RUN pip install requests
-RUN pip install "fastapi[standard]"
+
+WORKDIR /app
+
+# 2. Layer Library Python (Hanya berubah kalau requirements.txt berubah)
+COPY requirements.txt .
+# RUN /bin/sh -c pip install --no-cache-dir -r requirements.txt
+
+# 3. Layer Aplikasi (Paling sering berubah)
+COPY . .
+
+
+RUN pip install --no-cache-dir --upgrade pip opencv-python insightface scikit-learn numpy onnxruntime redis requests fastapi[standard]
+# RUN pip install opencv-python insightface scikit-learn numpy
+# RUN pip install onnxruntime
+# RUN pip install redis
+# RUN pip install requests
+# RUN pip install "fastapi[standard]"
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # COPY . .
 
 EXPOSE 8000
 
-CMD ["fastapi", "run","main.py", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["fastapi", "run","main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]

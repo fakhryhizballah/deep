@@ -3,6 +3,7 @@ import numpy as np
 import redis
 import os
 import uuid
+import base64
 from dotenv import load_dotenv
 from .download import download_image, DecodingImage
 
@@ -150,8 +151,10 @@ def identify_multipel_face_imread_with_vector_search(image_path):
     faces = app.get(img)
     if len(faces) == 0:
         return False
-    
-    dataFace = [];
+
+    dataFace = []
+    h_img, w_img = img.shape[:2]
+
     for face in faces:
         emb_query = face.normed_embedding.astype(np.float32).tobytes()
         q = Query(f"*=>[KNN {5} @face_imread $vec as vector_score]") \
@@ -160,13 +163,32 @@ def identify_multipel_face_imread_with_vector_search(image_path):
             .dialect(2)
 
         results = r.ft(INDEX_NAME).search(q, query_params={"vec": emb_query})
-        # first_result = results.docs[0]
-        # name = first_result.name
-        print(results)
         if results.total == 0:
             print("Tidak ada hasil yang ditemukan.")
-            continue 
-        dataFace.append(results)
+            continue
+
+        x1, y1, x2, y2 = map(int, face.bbox)
+        w = x2 - x1
+        h = y2 - y1
+        margin_x = int(0.5 * w)
+        margin_y = int(0.5 * h)
+        x1 = max(0, x1 - margin_x)
+        y1 = max(0, y1 - margin_y)
+        x2 = min(w_img, x2 + margin_x)
+        y2 = min(h_img, y2 + margin_y)
+
+        crop_face = img[y1:y2, x1:x2]
+        ok, buffer = cv2.imencode('.jpg', crop_face)
+        crop_face_base64 = None
+        if ok:
+            crop_face_base64 = base64.b64encode(buffer.tobytes()).decode('utf-8')
+
+        dataFace.append({
+            "search_result": results,
+            "crop_face_base64": crop_face_base64,
+            "vector_score": results.docs[0].vector_score if results.total > 0 else None
+        })
+
     return dataFace
 
 def extract_embedding(image_path):
