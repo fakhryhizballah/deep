@@ -5,6 +5,7 @@ const Image = require("../models/Image")
 const Faces = require("../models/Faces")
 const Identity = require("../models/Identity")
 const axios = require('axios');
+const fs = require('fs');
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Terhubung ke MongoDB!'))
@@ -15,69 +16,126 @@ mongoose.connection.on('connected', () => {
 
 async function main() {
     let dataUser = await User.find({
-        nip: { $ne: null },
-        nik: { $ne: null }
+        nik: { $ne: null },
+        kontak: { $ne: null }
     })
     console.log(dataUser.length)
+    // console.log(JSON.stringify(dataUser, null, 2))
     for (let x of dataUser) {
-        console.log(x.nip)
+        console.log(x.nik)
         let ifexist = await Identity.findOne({ 'identifier.value': x.nik })
         if (ifexist) {
-            let updateData = await Identity.updateOne(
-                { _id: ifexist._id }, // Lebih cepat menggunakan ID hasil findOne
-                {
-                    $addToSet: {
-                        identifier: {
-                            system: 'Nomor Induk Pegawai',
-                            use: 'official',
-                            value: x.nip,
+            for (let y of x.kontak.email) {
+                console.log(y)
+                let updateData = await Identity.updateOne(
+                    { _id: ifexist._id }, // Lebih cepat menggunakan ID hasil findOne
+                    {
+                        $addToSet: {
+                            contacts: {
+                                system: 'Email',
+                                // use: 'mobile',
+                                value: y,
+                            }
                         }
                     }
-                },{
-                    upsert: true
-                }
-            );
-            if (updateData.modifiedCount > 0) {
-                console.log(`NIK ${x.nik}: NIP ${x.nip} berhasil ditambahkan.`);
-            } else {
-                console.log(`NIK ${x.nik}: NIP sudah ada atau tidak ada perubahan.`);
+                );
+                console.log(updateData)
+                // return
             }
-            continue
+            for (let y of x.kontak.no_hp) {
+                console.log(y)
+                let updateData = await Identity.updateOne(
+                    { _id: ifexist._id }, // Lebih cepat menggunakan ID hasil findOne
+                    {
+                        $addToSet: {
+                            contacts: {
+                                system: 'Phone',
+                                // use: 'mobile',
+                                value: y,
+                            }
+                        }
+                    }
+                );
+                console.log(updateData)
+                // return
+            }
+            // let updateData = await Identity.updateOne(
+            //     { _id: ifexist._id }, // Lebih cepat menggunakan ID hasil findOne
+            //     {
+            //         $addToSet: {
+            //             contacts: {
+            //                 system: 'Email',
+            //                 use: 'mobile',
+            //                 value: x.email,
+            //             }
+            //         }
+            //     }
+            // );
+            // if (updateData.modifiedCount > 0) {
+            //     console.log(`NIK ${x.nik}: NIP ${x.nip} berhasil ditambahkan.`);
+            // } else {
+            //     console.log(`NIK ${x.nik}: NIP sudah ada atau tidak ada perubahan.`);
+            // }
+            // continue
         }
-        let data = {
-            identifier: [
-                {
-                    system: 'Nomor Induk Penduduk',
-                    use: 'official',
-                    value: x.nik,
-                },
-                {
-                    system: 'Nama Lengkap',
-                    use: 'official',
-                    value: x.name,
-                }
-            ]
-        }
-        let simpan = await Identity.create(data)
     }
-    // let updateData = await Identity.updateOne(
-    //             { 'identifier.value': '6101015311890003' }, // Lebih cepat menggunakan ID hasil findOne
+    // for (let x of dataUser) {
+    //     console.log(x.nip)
+    //     let ifexist = await Identity.findOne({ 'identifier.value': x.nik })
+    //     if (ifexist) {
+    //         let updateData = await Identity.updateOne(
+    //             { _id: ifexist._id }, // Lebih cepat menggunakan ID hasil findOne
     //             {
     //                 $addToSet: {
     //                     identifier: {
     //                         system: 'Nomor Induk Pegawai',
     //                         use: 'official',
-    //                         value: "x",
+    //                         value: x.nip,
     //                     }
     //                 }
-    //             }
-    //         );
-    //         console.log(updateData)
-    //         if (updateData.modifiedCount > 0) {
-    //             console.log(`berhasil ditambahkan.`);
-    //         } else {
-    //             console.log(`NIP sudah ada atau tidak ada perubahan.`);
+    //             }, {
+    //             upsert: true
     //         }
+    //         );
+    //         if (updateData.modifiedCount > 0) {
+    //             console.log(`NIK ${x.nik}: NIP ${x.nip} berhasil ditambahkan.`);
+    //         } else {
+    //             console.log(`NIK ${x.nik}: NIP sudah ada atau tidak ada perubahan.`);
+    //         }
+    //         continue
+    //     }
+    //     let data = {
+    //         identifier: [
+    //             {
+    //                 system: 'Nomor Induk Penduduk',
+    //                 use: 'official',
+    //                 value: x.nik,
+    //             },
+    //             {
+    //                 system: 'Nama Lengkap',
+    //                 use: 'official',
+    //                 value: x.name,
+    //             }
+    //         ]
+    //     }
+    //     let simpan = await Identity.create(data)
+    // }
 
 }
-main()
+// main()
+
+async function preProses() {
+
+    // let updatedata = await Identity.updateMany(
+    //     { "contacts.value": null, "contacts.system": 'Email' },
+    //     {
+    //         $unset: {
+    //             'contacts': 1
+    //         }
+    //     }
+    // )
+    // console.log(updatedata)
+
+    return
+}
+// preProses()
