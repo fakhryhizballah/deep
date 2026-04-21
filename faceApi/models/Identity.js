@@ -12,6 +12,13 @@ const identitySchema = new mongoose.Schema({
             unique: true,
             sparse: true
         }
+    },
+    contacts: {
+        value: {
+            type: String,
+            unique: true,
+            sparse: true
+        }
     }
 }, { strict: false });
 
