@@ -1,0 +1,24 @@
+FROM python:3.9-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt-get/lists/*
+
+WORKDIR /app
+
+# 2. Layer Library Python (Hanya berubah kalau requirements.txt berubah)
+COPY requirements.txt .
+
+RUN --mount=type=cache,target=./.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# RUN pip install fastapi uvicorn deepface tf-keras pillow python-multipart watchfiles
+
+CMD ["uvicorn", "--reload", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

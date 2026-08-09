@@ -1,0 +1,13 @@
+# version: '3.8'
+
+services:
+  embededapi:
+    build: ./
+    container_name: embededapi
+    ports:
+      - "8000:8000"
+    # networks:
+    #   - api-cluster
+
+# networks:
+#   api-cluster:

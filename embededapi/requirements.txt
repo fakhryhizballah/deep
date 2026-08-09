@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+deepface
+tf-keras
+pillow
+python-multipart
+watchfiles
+opencv-python
