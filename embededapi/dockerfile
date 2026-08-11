@@ -14,8 +14,11 @@ WORKDIR /app
 # 2. Layer Library Python (Hanya berubah kalau requirements.txt berubah)
 COPY requirements.txt .
 
-RUN --mount=type=cache,target=./.cache/pip \
+RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir -r requirements.txt
+
+COPY download_weights.py .
+RUN python download_weights.py
 
 COPY . .
 

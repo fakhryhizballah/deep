@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     # networks:
     #   - api-cluster
+    volumes:
+      - ./.deepface/weights:/root/.deepface/weights
 
 # networks:
 #   api-cluster:

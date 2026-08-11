@@ -16,3 +16,5 @@ rstp/package-lock.json
 
 /faceApi/cache/*
 !/faceApi/cache/.gitkeep
+embededapi/.deepface/*
+!embededapi/.deepface/.gitkeep
