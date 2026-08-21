@@ -5,6 +5,9 @@ from PIL import Image
 import io
 import os
 import base64
+import requests
+import random
+import string
 app = FastAPI(
     title="Face Embedding API",
     description="Local service for generating 512/128-dimensional face embeddings using local DeepFace models.",
@@ -48,7 +51,6 @@ async def extract_embedding(file: UploadFile = File(...)):
             detector_backend="retinaface" # Pilihan detector: 'opencv', 'retinaface', 'mtcnn', 'yolov8'
         )
         
-
         results = []
         for face in embeddings_data:
             margin_ratio = 0.5
@@ -71,14 +73,51 @@ async def extract_embedding(file: UploadFile = File(...)):
             # Encode hasil crop ke format Base64 (JPEG)
             buffered = io.BytesIO()
             cropped_face.save(buffered, format="JPEG")
-            cropped_b64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-            results.append({
-                "embedding": face["embedding"],
-                "facial_area": area,
-                "confidence": face.get("face_confidence", 1.0),
-                "cropped_image_base64": f"data:image/jpeg;base64,{cropped_b64}"
-            })
+            buffered.seek(0) # Jangan lupa kembalikan pointer ke 0
+
+            # Generate 5 karakter acak (a-z)
+            # Menggunakan random.choices lebih disarankan di Python 3.6+
+            random_string = ''.join(random.choices(string.ascii_lowercase, k=5))
+
+            # Menggunakan f-string agar lebih mudah dibaca, misal: "abcde_image.jpg"
+            filename = f"{random_string}_image.jpg"
+            url = "https://api.spairum.my.id/api/cdn/upload/tmp"
+
+            # Format dict files: {'key': ('filename', file_object, 'content_type')}
+            # Anda menyebutkan key-nya adalah 'file'
+            random_string = ''.join([chr(random.randint(97, 122)) for _ in range(5)])
+            files = {
+                'file': (random_string+'.jpg', buffered, 'image/jpeg')
+            }
+        
+
+            # Jika API membutuhkan header tambahan (misal: Authorization), tambahkan parameter headers
+            # headers = {'Authorization': 'Bearer <token>'}
+
+            try:
+                # Lakukan POST request
+                response = requests.post(url, files=files)
+                
+                # Cek response
+                response.raise_for_status() 
+                print("Upload berhasil:", response.json())
+                cropped_b64 = response.json()['data'][0]
+                results.append({
+                    "embedding": face["embedding"],
+                    "facial_area": face["facial_area"],
+                    "confidence": face.get("face_confidence", 1.0),
+                    "file": cropped_b64
+                })
+                
+            except requests.exceptions.RequestException as e:
+                print(f"Terjadi kesalahan saat upload: {e}")
+                if response is not None:
+                    print("Detail error:", response.text)
+
+            # cropped_b64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+            
             # results.append({
             #     "embedding": face["embedding"],
             #     "facial_area": face["facial_area"],
