@@ -8,11 +8,16 @@ faceApi/images/*
 !faceApi/images/.gitkeep
 faceApi/faces/*
 !faceApi/faces/.gitkeep
+
+recognition/node_modules
+recognition/package-lock.json
+recognition/data
+!/src/connection/cache/.gitkeep
 /node
 rstp/faces/
 rstp/package-lock.json
 .DS_Store
-.env
+*.env*
 
 /faceApi/cache/*
 !/faceApi/cache/.gitkeep
